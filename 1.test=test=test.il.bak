@@ -1,0 +1,2168 @@
+
+
+procedure( Test_fun(l_name)
+let((VisList)
+	VisList = axlVisibleGet()
+
+	
+	AutoText_Main1()
+	
+	
+	axlShell("generaledit")
+	axlVisibleSet(VisList)
+	axlVisibleUpdate(t)
+	t
+)
+)
+
+
+procedure( DrcAuto_SilkOnSold()
+prog((ID_Pin)
+	foreach(n0 axlDBGetDesign()->drcs
+		when(n0->source == "\313\277\323\241\324\332\277\252\264\260\311\317"
+			if(car(n0->n0->violations)->objType == "pin" then
+				ID_Pin = car(n0->violations)
+				ID_Silk = cadr(n0->violations)
+			else
+				ID_Pin = cadr(n0->violations)
+				ID_Silk = car(n0->violations)	
+			)
+			when(ID_Silk->objType == "line" 
+				;println(axlPathGetPathSegs(ID_Silk->parent))
+				println(car(axlPathGetPathSegs(axlDB2Path(ID_Silk->parent)))->??)
+			)
+			
+			
+		)
+	)
+	t
+)
+)
+
+
+
+
+;----------启动触发函数---------
+cid = nil
+procedure( Sys_TrigerStart(l_name)
+	when(isFile(car(l_name))
+		when(index(car(l_name) ".brd")
+			printf("openbbbbbbbbbbbbbbbbb")
+			cid = ipcBeginProcess("C:/Program Files/GyroTech/x86/Script/GTAllegro.exe" "" "Sys_IPCmain" "Sys_IPCErr" "Sys_IPCTerm" "")
+			ipcWaitForProcess(cid)
+		)
+	)
+)
+
+;----------触发关闭函数---------
+procedure( Sys_TrigerClose(l_name)
+	ipcWriteProcess(cid "@exit\n")
+	ipcWriteProcess(cid "@exit\n")
+	ipcKillAllProcesses()
+)
+
+;----------触发保存函数---------
+procedure( Sys_TrigerSave(l_name)
+let((StdOut ss)
+	sprintf(StdOut "Command=FileStatus|Status=Save|FileName=%s|SaveFileName=%s" car(l_name) cadr(l_name))
+	sprintf(ss "%d\n" strlen(StdOut))
+	ipcWriteProcess(cid ss)
+	for(i 0 truncate(strlen(StdOut)/4000)
+		ss = substring(StdOut i*4000+1 4000)
+	  ipcWriteProcess(cid ss)
+	)
+)
+)
+
+
+;----------指令错误函数---------
+procedure( Sys_IPCErr(cid err)
+	print("Error %L Msg: %s\n" cid err)
+	ipcWriteProcess(cid "@exit\n")
+	ipcWriteProcess(cid "@exit\n")
+	ipcKillAllProcesses()
+)
+
+procedure( Sys_IPCTerm(cid exit)
+	print("Simulator expired with exit status = \n" exit)
+	ipcWriteProcess(cid "@exit\n")
+	ipcWriteProcess(cid "@exit\n")
+	ipcKillAllProcesses()
+)
+
+
+
+
+;----------触发设置-----------
+axlTriggerSet('open 'Sys_TrigerStart)
+axlTriggerSet('save 'Sys_TrigerSave)
+axlTriggerSet('close 'Sys_TrigerClose)
+
+
+
+;----------指令匹配函数--------
+rec = 0
+procedure( Sys_IPCmain(cid dataIN)
+prog((data data0 VisList t_vis S_set)
+	data0 = buildString(parseString(dataIN "\r\n") "\r\n")
+	when(length(parseString(data0 "\r\n")) > 1
+		rec = atoi(car(parseString(data0 "\r\n"))) - strlen(cadr(parseString(data0 "\r\n")))
+		data = data0
+		if(rec == 0 then
+			go(MP0)
+		else
+			return(t)
+		)
+	)
+	if(data0 != "ok" then
+		when(rec == 0
+			ipcWriteProcess(cid "Result=1|errInfo=No Command")
+			return(t)
+		)
+		rec = rec - strlen(car(parseString(data0 "\r\n")))
+		data = strcat(data car(parseString(data0 "\r\n")))
+		if(rec == 0 then
+			go(MP0)
+		else
+			return(t)
+		)
+	else
+		data = data0
+		go(MP1)
+	)
+	MP0
+	VisList = axlVisibleGet()
+	t_vis = t
+	S_set = caddr(parseString(data "|\r\n"))
+	axlTriggerClear('open 'Sys_TrigerStart)
+	axlTriggerClear('save 'Sys_TrigerSave)
+	axlTriggerClear('close 'Sys_TrigerClose)
+	
+	case(cadr(parseString(data "|\r\n")) 
+		("200000101"
+			StdOut = Read_Parameter()
+		)
+		("200000201"
+			StdOut = Setting_Parameter(data)
+		)
+		("200000301"
+			StdOut = Read_Status()
+		)
+		("200000102"
+			StdOut = axlDBCloak(DrcRead(S_set));
+		)
+		("200000205"
+			StdOut = axlDBCloak(DrcCheck_main(S_set))
+		)
+		("200000202"
+			StdOut = axlDBCloak(DrcAuto_main(data))
+		)
+		("200000204"
+			StdOut = axlDBCloak(DrcChangeProp(data))
+		)
+		("200000302"
+			StdOut = axlDBCloak(DrcLocation(data));DRC定位
+			t_vis = nil
+		)
+		("200000103"
+			StdOut = DrcDing();问题钉
+		)
+		("200000104"
+			StdOut = Read_Path()
+		)
+		("200000105"
+			StdOut = axlDBCloak(AutoText_Main())
+		)
+		("200000106"
+			StdOut = Gerber_Main(data);film 
+		)
+		("200000203"
+			StdOut = Netlist_In(data);网标导入
+		)
+		(t
+			StdOut = "Result=1|errInfo=No Command"
+		)
+	)
+	
+	axlTriggerSet('open 'Sys_TrigerStart)
+	axlTriggerSet('save 'Sys_TrigerSave)
+	axlTriggerSet('close 'Sys_TrigerClose)
+	
+	when(t_vis
+		axlVisibleSet(VisList)
+	)
+	axlVisibleUpdate(t)
+	l_ss = '()
+	sprintf(StdOut "%d_%s" strlen(StdOut) StdOut)
+	TimeSent = truncate(strlen(StdOut)/4000)
+	for(i 0 TimeSent
+		ss = substring(StdOut i*4000+1 4000)
+		l_ss = append1(l_ss strcat(ss "\n"))
+	)
+	;println(car(l_ss))
+	ipcWriteProcess(cid car(l_ss))
+	l_ss = cdr(l_ss)
+	return(t)
+	MP1
+	when(l_ss
+	;println(car(l_ss))
+		ipcWriteProcess(cid car(l_ss))
+		l_ss = cdr(l_ss)
+	)
+	return(t)
+)
+)
+
+
+
+
+;----------问题钉--------------
+procedure( DrcDing()
+let((Drcxy MarkValue DrcID StdOut tt)
+	Drcxy = axlEnterPoint(?prompts list("\307\353\265\343\316\312\314\342\264\246\243\241") ?gridSnap t)
+	MarkValue = axlUIPrompt("\316\312\314\342\303\350\312\366\243\272")
+	DrcID = car(axlDBCreateExternalDRC(list("\316\312\314\342\266\244" "Null") Drcxy "TOP" nil nil "Null"))
+	StdOut = "Result=0"
+	tt = "|WaivedDrc=0"
+	StdOut = strcat(StdOut tt)
+	sprintf(tt "|ConstraintName=%s" DrcID->source)
+	StdOut = strcat(StdOut tt)
+	sprintf(tt "|ActualValue=%s" DrcID->actual)
+	StdOut = strcat(StdOut tt)
+	sprintf(tt "|DrcXy=%g;%g" car(DrcID->xy) cadr(DrcID->xy))
+	StdOut = strcat(StdOut tt)
+	sprintf(tt "|DrcbBox=%g;%g;%g;%g" caar(DrcID->bBox) cadar(DrcID->bBox) caadr(DrcID->bBox) cadadr(DrcID->bBox))
+	StdOut = strcat(StdOut tt)
+	sprintf(tt "|RequiredValue=%s" DrcID->expected)
+	StdOut = strcat(StdOut tt)
+	tt = "|DrcLayer="
+	foreach(n0 axlVisibleGet()
+		when(n0->visible
+			foreach(n1 n0->subclassinfo
+				when(cadr(n1)
+					tt = strcat(tt strcat(n0->class "/" car(n1)) ";")
+				)
+			)
+		)
+	)
+	axlDBAddProp(DrcID list("DRCLAYER" cadr(parseString(tt "="))))
+	sprintf(tt "|Comment=%s" MarkValue)
+	StdOut = strcat(StdOut tt)
+	StdOut
+)
+)
+
+;----------读状态函数----------
+procedure( Read_Status()
+let((StdOut tt PComp AComp Rnets Anets)
+	StdOut = "Result=0"
+	ComList = axlDBGetDesign()->components
+	PComp = length(ComList)
+	AComp = length(ComList)
+	NumUnroutedCon = 0
+	foreach(n0 ComList
+		when(n0->symbol == nil
+			PComp--
+		)
+	)
+	sprintf(tt "|PlacedComponent=%d" PComp)
+	StdOut = strcat(StdOut tt)
+	sprintf(tt "|AllComponent=%d" AComp)
+	StdOut = strcat(StdOut tt)
+	NetsList = axlDBGetDesign()->nets
+	Anets = length(NetsList)
+	Rnets = length(NetsList)
+	foreach(n0 NetsList
+		Rnets = Rnets-n0->unconnected
+		Rnets = Rnets-n0->unplaced
+	)
+	sprintf(tt "|RoutedNets=%d" Rnets)
+	StdOut = strcat(StdOut tt)
+	sprintf(tt "|AllNets=%d" Anets)
+	StdOut = strcat(StdOut tt)
+	sprintf(tt "|NumDrc=%d" axlDRCGetCount())
+	StdOut = strcat(StdOut tt)
+	BoardXy = axlMXYSub(cadr(axlExtentDB()) car(axlExtentDB()))
+	sprintf(tt "|BoardExtent=%g;%g" car(BoardXy) cadr(BoardXy))
+	StdOut = strcat(StdOut tt)
+	when(axlDBGetDesign()->prop->SCHEMATIC_NAME
+		sprintf(tt "|SchName=%s" axlDBGetDesign()->prop->SCHEMATIC_NAME)
+		StdOut = strcat(StdOut tt)
+	)
+	StdOut
+)
+)
+
+;----------读参数--------------
+procedure( Read_Parameter()
+let((StdOut tt LayerList)
+	StdOut = "Result=0"
+	sprintf(tt "|DesignUnits=%s;%d" car(axlDBGetDesignUnits()) cadr(axlDBGetDesignUnits()))
+	StdOut = strcat(StdOut tt)
+	sprintf(tt "|LineWidth=%g" axlCNSGetPhysical("" "TOP" "width_min"))
+	StdOut = strcat(StdOut tt)
+	sprintf(tt "|LineSpacing=%g"  axlCNSGetSpacing("" "TOP" "line_line"))
+	StdOut = strcat(StdOut tt)
+	tt = length(axlSubclasses("ETCH"))
+	sprintf(tt "|LayerNum=%d" tt)
+	StdOut = strcat(StdOut tt)
+	StdOut
+)
+)
+
+;----------设置参数------------
+procedure( Setting_Parameter(S_setting)
+let((StdOut tt detaNum)
+	StdOut = "Result=0"
+	detaNum = nil
+	foreach(n0 cddr(parseString(S_setting "|\r\n"))
+		tt = cdr(parseString(n0 "=;"))
+		case(car(parseString(n0 "="))
+			("LineWidth"
+				axlCNSSetPhysical(nil nil 'width_min atof(car(tt)))
+			)
+			("LineSpacing"
+				axlCNSSetSpacing("" nil 'line_line atof(car(tt)))
+				axlCNSSetSpacing("" nil 'thrupin_line atof(car(tt)))
+				axlCNSSetSpacing("" nil 'smdpin_line atof(car(tt)))
+				axlCNSSetSpacing("" nil 'via_line atof(car(tt)))
+				axlCNSSetSpacing("" nil 'bbvia_line atof(car(tt)))
+				axlCNSSetSpacing("" nil 'testpin_line atof(car(tt)))
+				axlCNSSetSpacing("" nil 'testvia_line atof(car(tt)))
+				axlCNSSetSpacing("" nil 'line_shape atof(car(tt)))
+			)
+			("LayerNum"				
+				while(atoi(car(tt)) != axlGetParam("paramLayerGroup:ETCH")->nChildren
+					axlShell("xsection")
+					detaNum = t	
+				)
+			)
+			(t
+				StdOut = "Result=1|errInfo=200000201"
+			)
+		)
+	)
+	StdOut
+)
+)
+
+
+
+
+
+
+
+
+L_ConName = list(
+	'("SOLDERMASK_CLINE_SPACING" "\277\252\264\260\265\275\317\337\277\327\272\270\305\314\276\340\300\353") ;-----开窗到线孔焊盘距离
+	'("SOLDERMASK_SHAPE_SPACING" "\277\252\264\260\265\275\315\255\306\244\276\340\300\353") ;-----开窗到铜皮距离
+	'("Line to SMD Pin Same Net Spacing" "\317\337\265\275\315\254\303\373\272\270\305\314\276\340\300\353") 
+	'("Line to SMD Pin Spacing" "\317\337\265\275\272\270\305\314\276\340\300\353") 
+	'("PASTEMASK_SPACING" "\270\326\315\370\274\344\276\340") ;-----钢网间距
+	'("Package to Package Spacing" "\267\342\327\260\276\340\300\353") 
+	'("SOLDERMASK_SPACING" "\277\252\264\260\274\344\276\340") ;-----开窗间距
+	'("SMD Pin to SMD Pin Spacing" "\272\270\305\314\265\275\272\270\305\314\276\340\300\353") 
+	'("SMD Pin to SMD Pin Same Net Spacing" "\272\270\305\314\265\275\315\254\303\373\272\270\305\314\276\340\300\353")
+	
+	'("CheckMark" "MARK\265\343\312\375\301\277");-----MARK点数量
+	'("CheckSilkOnSold" "\313\277\323\241\324\332\277\252\264\260\311\317");-----丝印在开窗上
+	'("CheckTextOnSold" "\316\273\272\305\324\332\277\252\264\260\311\317");-----位号在开窗上
+	'("CheckIsland" "\271\302\315\255");-----孤铜
+	'("CheckViaInRCL" "\315\250\277\327Via\324\332\306\367\274\376\326\320\274\344");-----通孔Via在器件中间
+	'("CheckThermalRelief" "\311\242\310\310\272\270\305\314");-----散热焊盘
+	'("CheckAcuteAngle" "\310\361\275\307\327\337\317\337");-----锐角走线
+	'("CheckClineWidthChange" "\317\337\277\355\315\273\261\344");-----线宽突变
+	'("CheckSold2SoldSpacing" "\277\252\264\260\274\344\276\340");-----开窗间距
+	'("CheckSold2PadClineSpacing" "\277\252\264\260\265\275\317\337\277\327\272\270\305\314\276\340\300\353");-----开窗到线孔焊盘距离
+	'("CheckSold2ShapeSpacing" "\277\252\264\260\265\275\315\255\306\244\276\340\300\353");-----开窗到铜皮距离
+	'("CheckPast2PastSpacing" "\270\326\315\370\274\344\276\340");-----钢网间距
+)
+
+;----------Drc检查-------------
+procedure( DrcCheck_main(S_setting)
+;println(S_setting)
+prog((ss L_drc StdOut tt )
+	StdOut = "Result=0"
+	L_drc = '()
+	axlDBRefreshId(nil)
+	unless(axlDBGetPropDictEntry("DRCLAYER")
+		axlDBCreatePropDictEntry("DRCLAYER" "STRING" '("DRCS"))
+	)
+	foreach(n0 append(axlDBGetDesign()->drcs axlDBGetDesign()->waived)
+		when(n0->name == "Externally Determined Violation" && n0->source == cadr(assoc(car(parseString(S_setting "=")) L_ConName))
+			L_drc = append1(L_drc list(list(n0->xy n0->source n0->name n0->layer) n0->waived))
+			axlDeleteObject(n0 'ripup)
+			axlDBRefreshId(nil)
+		)
+	)
+	tt = atoi(cadr(parseString(S_setting "=")))
+	case(car(parseString(S_setting "="))
+		("CheckMark";---MARK点数量
+			when(tt == 1
+				axlDBCloak('DrcCheck_Mark() nil)
+				go(MP0)
+			)
+		)
+		("CheckTextOnSold";----丝印在开窗上
+			when(tt == 1
+				axlDBCloak('DrcCheck_SilkOnSold("CheckTextOnSold") nil)
+				go(MP0)
+			)
+		)
+		("CheckTextOnSold";----位号在开窗上
+			when(tt == 1
+				axlDBCloak('DrcCheck_SilkOnSold("CheckTextOnSold") nil)
+				go(MP0)
+			)
+		)
+		("CheckIsland";----孤铜
+			when(tt == 1
+				axlDBCloak('DrcCheck_Island() nil)
+				go(MP0)
+			)
+		)
+		("CheckViaInRCL";---通孔Via在器件中间
+			when(tt == 1
+				axlDBCloak('DrcCheck_ViaInRCL() nil)
+				go(MP0)
+			)
+		)
+		("CheckThermalRelief";-----散热焊盘
+			when(tt == 1
+				axlDBCloak('DrcCheck_ThermalRelief() nil)
+				go(MP0)
+			)
+		)
+		("CheckAcuteAngle";---锐角走线
+			when(tt == 1
+				DrcCheck_AcuteAngle("CheckAcuteAngle")
+				go(MP0)
+			)
+		)
+		("CheckClineWidthChange";---线宽突变
+			when(tt == 1
+				DrcCheck_AcuteAngle("CheckClineWidthChange")
+				go(MP0)
+			)
+		)
+		("CheckSold2SoldSpacing";-----开窗间距
+			when(tt == 1
+				axlCNSDesignValueSet('Pad_Soldermask_to_Pad_Soldermask_Spacing axlMKSStr2UU("3 mil"))
+				axlCNSDesignModeSet('Pad_Soldermask_to_Pad_Soldermask_Spacing 'on)
+				go(MP1)
+			)
+			when(tt == 0
+				axlCNSDesignValueSet('Pad_Soldermask_to_Pad_Soldermask_Spacing axlMKSStr2UU("0 mil"))
+				axlCNSDesignModeSet('Pad_Soldermask_to_Pad_Soldermask_Spacing 'off)
+				go(MP1)
+			)
+		)
+		("CheckSold2PadClineSpacing";----开窗到线孔焊盘距离
+			when(tt == 1
+				axlCNSDesignValueSet('Soldermask_to_Pad_and_Cline_Spacing axlMKSStr2UU("2 mil"))
+				axlCNSDesignModeSet('Soldermask_to_Pad_and_Cline_Spacing 'on)
+				go(MP1)
+			)
+			when(tt == 0
+				axlCNSDesignValueSet('Soldermask_to_Pad_and_Cline_Spacing axlMKSStr2UU("0 mil"))
+				axlCNSDesignModeSet('Soldermask_to_Pad_and_Cline_Spacing 'off)
+				go(MP1)
+			)
+		)
+		("CheckSold2ShapeSpacing";----开窗到铜皮距离
+			when(tt == 1
+				axlCNSDesignValueSet('Soldermask_to_Shape_Spacing axlMKSStr2UU("2 mil"))
+				axlCNSDesignModeSet('Soldermask_to_Shape_Spacing 'on)
+				go(MP1)
+			)
+			when(tt == 0
+				axlCNSDesignValueSet('Soldermask_to_Shape_Spacing axlMKSStr2UU("0 mil"))
+				axlCNSDesignModeSet('Soldermask_to_Shape_Spacing 'off)
+				go(MP1)
+			)
+		)
+		("CheckPast2PastSpacing" ;-----钢网间距
+			when(tt == 1
+				axlCNSDesignValueSet('Pad_Pastemask_to_Pad_Pastemask_Spacing axlMKSStr2UU("7.5 mil"))
+				axlCNSDesignModeSet('Pad_Pastemask_to_Pad_Pastemask_Spacing 'on)
+				go(MP1)
+			)
+			when(tt == 0
+				axlCNSDesignValueSet('Pad_Pastemask_to_Pad_Pastemask_Spacing axlMKSStr2UU("0 mil"))
+				axlCNSDesignModeSet('Pad_Pastemask_to_Pad_Pastemask_Spacing 'off)
+				go(MP1)
+			)
+		)
+	)
+	
+	MP1
+	;axlDRCUpdate(t)
+	axlDBCheck('drc)
+	MP0
+	axlDBRefreshId(nil)
+	foreach(n0 append(axlDBGetDesign()->drcs axlDBGetDesign()->waived)
+		ss = assoc(list(n0->xy n0->source n0->name n0->layer) L_drc)
+		when(ss && cadr(ss)
+			axlDRCWaive(cadr(ss) n0)
+		)
+		when(member(n0->source list("SOLDERMASK_CLINE_SPACING" "SOLDERMASK_SPACING" "SOLDERMASK_SHAPE_SPACING"))
+			tt = cadr(parseString(n0->layer "/"))
+			axlDBAddProp(n0 list("DRCLAYER" strcat(n0->layer ";PIN/SOLDERMASK_" tt ";PACKAGE GEOMETRY/SOLDERMASK_" tt ";BOARD GEOMETRY/SOLDERMASK_" tt ";PIN/" tt ";ETCH/" tt ";VIA CLASS/" tt)))
+		)
+		when(member(n0->source list("PASTEMASK_SPACING"))
+			tt = cadr(parseString(n0->layer "/"))
+			axlDBAddProp(n0 list("DRCLAYER" strcat(n0->layer ";PIN/" tt ";PACKAGE GEOMETRY/" tt)))
+		)
+	)
+	StdOut = DrcRead(S_setting)
+	return(StdOut)
+)
+;axlShell("generaledit")
+)
+
+;----------检查mark点---------
+procedure( DrcCheck_Mark()
+let((NumMarkTop NumMarkBot DrcID)
+	NumMarkTop = 0
+	NumMarkBot = 0
+	foreach(n0 axlDBGetDesign()->symbols
+		when(n0->name == "MARK" && n0->isMirrored == nil
+			NumMarkTop++
+		)
+		when(n0->name == "MARK" && n0->isMirrored == t
+			NumMarkBot++
+		)
+	)
+	when(NumMarkTop < 2
+		sprintf(NumMarkTop "%d" NumMarkTop)
+		DrcID = axlDBCreateExternalDRC(list("MARK\265\343\312\375\301\277" "TOP\303\346\264\363\323\3322\270\366") list(caar(axlExtentDB()) cadar(axlExtentDB())) "TOP" nil nil NumMarkTop)
+		axlDBAddProp(car(DrcID) '("DRCLAYER" "BOARD GEOMETRY/OUTLINE;DRC ERROR CLASS/TOP;PIN/TOP;VIA CLASS/TOP"))
+	)
+	when(NumMarkBot < 2
+		sprintf(NumMarkBot "%d" NumMarkBot)
+		DrcID = axlDBCreateExternalDRC(list("MARK\265\343\312\375\301\277" "BOTTOM\303\346\264\363\323\3322\270\366") list(caar(axlExtentDB()) cadar(axlExtentDB())) "BOTTOM" nil nil NumMarkBot)
+		axlDBAddProp(car(DrcID) '("DRCLAYER" "BOARD GEOMETRY/OUTLINE;DRC ERROR CLASS/BOTTOM;PIN/BOTTOM;VIA CLASS/BOTTOM"))
+	)
+	t
+)
+)
+
+;----------检查丝印压开窗-----
+procedure( DrcCheck_SilkOnSold(S_setting)
+prog((PINID t_TOnSID shapeid DrcLayer Drcxy tempShapeid templayer DrcID DrcXy)
+	foreach(nV '("TOP" "BOTTOM")
+		axlVisibleDesign(nil)
+		axlVisibleLayer(strcat("PIN/SOLDERMASK_" nV) t)
+		axlVisibleLayer(strcat("BOARD GEOMETRY/SOLDERMASK_" nV) t)
+		axlVisibleLayer(strcat("PACKAGE GEOMETRY/SOLDERMASK_" nV) t)
+		axlSetFindFilter(?enabled '("NOALL" "SHAPES" "PINS" "LINESEGS") ?onButtons '("ALLTYPES"))
+		axlAddSelectAll()
+		SoldID = axlGetSelSet()
+		axlClearSelSet()
+		axlVisibleDesign(nil)
+		axlVisibleLayer(strcat("REF DES/SILKSCREEN_" nV) t)
+		axlVisibleLayer(strcat("BOARD GEOMETRY/SILKSCREEN_" nV) t)
+		axlVisibleLayer(strcat("PACKAGE GEOMETRY/SILKSCREEN_" nV) t)
+		axlSetFindFilter(?enabled '("NOALL" "LINESEGS" "SHAPES" "TEXT") ?onButtons '("ALLTYPES"))
+		L_SoldText = '()
+		L_Text = '()
+		foreach(n0 SoldID
+			SegsEn = t
+			TextEn = t
+			foreach(n1 n0->pads
+				when(index(n1->layer "SOLDERMASK") && n1->figure
+					Polyn0 = axlPolyExpand(axlPolyFromDB(car(n1->figure)) axlMKS2UU("-0.01 mils") 'ACU_BLUNT)
+				)
+			)
+			axlSingleSelectBox(n0->bBox)
+			foreach(n1 axlGetSelSet()
+				when(n1->objType != "text" && SegsEn && S_setting == "CheckSilkOnSold"
+					when(axlAirGap(n0 n1 strcat("PIN/SOLDERMASK_" nV) 'anyLayer) == 0 && car(axlPolyOperation(Polyn0 axlPolyFromDB(n1) 'AND))
+						SegsEn = nil
+						DrcXy = axlMXYMult(axlMXYAdd(car(n0->bBox) cadr(n0->bBox)) 0.5)
+						DrcID = axlDBCreateExternalDRC(list("\313\277\323\241\324\332\277\252\264\260\311\317" strcat(">" axlMKSStr2UU("0"))) DrcXy nV list(n0 n1) nil axlMKSStr2UU("0"))
+						axlDBAddProp(car(DrcID) list("DRCLAYER" strcat("BOARD GEOMETRY/OUTLINE;DRC ERROR CLASS/" nV ";PIN/SOLDERMASK_" nV ";REF DES/SILKSCREEN_" nV ";BOARD GEOMETRY/SILKSCREEN_" nV ";PACKAGE GEOMETRY/SILKSCREEN_" nV)))
+					)
+				)
+				when(n1->objType == "text" && TextEn && S_setting == "CheckTextOnSold"	
+					TextEn = nil
+					L_SoldText = append1(L_SoldText list(n0 n1))
+					unless(member(n1 L_Text)
+						L_Text = append1(L_Text n1)
+					)					
+				)
+			)
+			axlClearSelSet()
+		)
+		when(L_SoldText
+			axlDetailSave("temp.plt" axlExtentDB() L_Text)
+			axlSetActiveLayer("BOARD GEOMETRY/DIMENSION")
+			axlDetailLoad("temp.plt" car(axlExtentDB()) 1.0 0 nil)
+			deleteFile("temp.plt")
+						
+			axlVisibleDesign(nil)
+			axlVisibleLayer("BOARD GEOMETRY/DIMENSION" t)
+			axlSetFindFilter(?enabled '("NOALL" "LINESEGS") ?onButtons '("ALLTYPES"))
+			foreach(n0 L_SoldText
+				axlSingleSelectBox(cadr(n0)->bBox)
+				TextEn = t
+				foreach(n1 car(n0)->pads
+					when(index(n1->layer "SOLDERMASK") && n1->figure
+						Polyn0 = axlPolyExpand(axlPolyFromDB(car(n1->figure)) axlMKS2UU("-0.01 mils") 'ACU_BLUNT)
+					)
+				)
+				foreach(n1 axlGetSelSet()
+					axlClearSelSet()
+					when(axlAirGap(car(n0) n1 strcat("PIN/SOLDERMASK_" nV) 'anyLayer) == 0 && TextEn && car(axlPolyOperation(Polyn0 axlPolyFromDB(n1) 'AND))
+						TextEn = nil
+						DrcXy = axlMXYMult(axlMXYAdd(car(car(n0)->bBox) cadr(car(n0)->bBox)) 0.5)
+						;DrcID = axlDBCreateExternalDRC(list("test" strcat(">" axlMKSStr2UU("0"))) DrcXy nV n0 nil axlMKSStr2UU("0"))
+						DrcID = axlDBCreateExternalDRC(list("\316\273\272\305\324\332\277\252\264\260\311\317" strcat(">" axlMKSStr2UU("0"))) DrcXy nV n0 nil axlMKSStr2UU("0"))
+						axlDBAddProp(car(DrcID) list("DRCLAYER" strcat("BOARD GEOMETRY/OUTLINE;DRC ERROR CLASS/" nV ";PIN/SOLDERMASK_" nV ";REF DES/SILKSCREEN_" nV ";BOARD GEOMETRY/SILKSCREEN_" nV ";PACKAGE GEOMETRY/SILKSCREEN_" nV)))
+					)
+				)
+				axlClearSelSet()
+			)
+			axlClearSelSet()
+			axlAddSelectAll()
+			axlDeleteObject(axlGetSelSet())
+			axlDBRefreshId(nil)
+		)
+	)
+	t
+)
+)
+
+;----------检查孤铜-----------
+procedure( DrcCheck_Island()
+let((VoidID PinNum Drcxy DrcLayer DrcID)
+	axlClearSelSet()
+	axlVisibleDesign(nil) 
+	axlVisibleLayer("ETCH" t)
+	axlVisibleLayer("PIN/TOP" t)
+	axlVisibleLayer("PIN/BOTTOM" t)
+	axlVisibleLayer("VIA CLASS" t)
+	axlSetFindFilter( ?enabled '("NOALL" "CLINES" "VIAS" "SHAPES" "LINES" "PINS") ?onButtons '("ALLTYPES"))	
+	axlAddSelectAll()
+	VoidID = axlGetSelSet()
+	axlClearSelSet()
+	foreach(n0 VoidID
+		when(n0->net->name == nil || n0->net->name == "" ;&& n0->definition->plating == "PLATED"
+			if(n0->objType == "via" || n0->objType == "pin"  then
+				DrcLayer = cadr(parseString(car(n0->startEnd) "/"))
+			else
+				DrcLayer = cadr(parseString(n0->layer "/"))	
+			)
+			Drcxy = list((caar(n0->bBox)+caar(reverse(n0->bBox)))/2 (cadar(n0->bBox)+cadar(reverse(n0->bBox)))/2)
+			DrcID = axlDBCreateExternalDRC(list("\271\302\315\255" "\301\254\275\323") Drcxy DrcLayer list(n0) nil "\270\241\277\325")
+			axlDBAddProp(car(DrcID) list("DRCLAYER" strcat("BOARD GEOMETRY/OUTLINE;DRC ERROR CLASS/" DrcLayer ";ETCH/" DrcLayer ";PIN/" DrcLayer ";VIA CLASS/" DrcLayer)))
+		)
+	)
+	t
+)
+)
+
+;----------检查过孔在阻容感底下---------
+procedure( DrcCheck_ViaInRCL()
+let((RCLID ViaID DrcLayer)
+	ViaID = '()
+	RCLID = axlSelectByName("SYMTYPE" '("*1206" "*0805" "*0603" "*0402" "*0201") t)
+	axlClearSelSet()
+	axlVisibleDesign(nil)
+	axlVisibleLayer("VIA CLASS/TOP" t)
+	axlVisibleLayer("PIN/TOP" t)
+	axlVisibleLayer("PIN/BOTTOM" t)
+	axlSetFindFilter(?enabled '("NOALL" "vias") ?onButtons '("vias"))	
+	foreach(n0 RCLID
+		when(axlDBGetExtents(n0 t)
+			axlSingleSelectBox(axlDBGetExtents(n0 t))
+			ViaID = axlGetSelSet()
+			DrcLayer = "TOP"
+			when(n0->isMirrored
+				DrcLayer = "BOTTOM"
+			)
+			foreach(n1 ViaID
+				when(axlIsPointInsideBox(n1->xy axlDBGetExtents(n0 t)) && n1->isThrough
+					DrcID = axlDBCreateExternalDRC(list("\315\250\277\327Via\324\332\306\367\274\376\326\320\274\344" "\315\250\277\327Via\262\273\304\334\324\332RCL\306\367\274\376\326\320") n1->xy DrcLayer list(n0 n1) nil "\324\332\304\332")
+					axlDBAddProp(car(DrcID) list("DRCLAYER" strcat("BOARD GEOMETRY/OUTLINE;DRC ERROR CLASS/" DrcLayer)))
+				)
+			)
+		)
+	)
+	axlClearSelSet()
+	t
+)
+)
+
+;----------检查散热焊盘-------
+procedure( DrcCheck_ThermalRelief()
+let((PINID tt ThermalWidth DrcLayer DrcID)
+	axlVisibleDesign(nil)
+	axlVisibleLayer("PIN/TOP" t)
+	axlVisibleLayer("PIN/BOTTOM" t)
+	axlSetFindFilter(?enabled '("NOALL" "PINS") ?onButtons '("ALLTYPES"))
+	axlAddSelectAll()
+	PINID = axlGetSelSet()
+	axlClearSelSet()
+	foreach(n0 PINID
+		ThermalWidth = nil
+		when(axlDBGetConnect(n0 t)
+			foreach(n1 axlDBGetConnect(n0 t)
+				when(n1->thermal
+					ThermalWidth = car(n1->segments)->width
+				)
+			)
+		)
+		tt = axlMXYSub(car(reverse(n0->bBox)) car(n0->bBox))			
+		tt = min(car(tt) cadr(tt))
+		DrcLayer = cadr(parseString(car(n0->startEnd) "/"))
+		when(ThermalWidth && (ThermalWidth >= 0.67*tt || ThermalWidth <= 0.2*tt)
+			DrcID = axlDBCreateExternalDRC(list("\311\242\310\310\272\270\305\314" "1/5<\317\337\277\355/\272\270\305\314\277\355\266\310<2/3") n0->xy DrcLayer list(n0) nil "\263\254\263\366")
+			axlDBAddProp(car(DrcID) list("DRCLAYER" strcat("BOARD GEOMETRY/OUTLINE;DRC ERROR CLASS/" DrcLayer ";PIN/" DrcLayer ";ETCH/" DrcLayer ";VIA CLASS/" DrcLayer)))
+		)
+	)
+	t
+)
+)
+
+;----------锐角走线/线宽突变检查--------
+procedure( DrcCheck_AcuteAngle(S_setting)
+let((LineID L_point ADbid)
+	foreach(nV axlSubclasses("ETCH")
+		axlVisibleDesign(nil)
+		axlVisibleLayer(strcat("ETCH/" nV) t)
+		axlSetFindFilter(?enabled '("NOALL" "CLINES") ?onButtons '("ALLTYPES"))
+		axlAddSelectAll()
+		LineID = axlGetSelSet()
+		axlClearSelSet()
+		foreach(n0 LineID
+			when(length(axlPolyFromDB(n0)) > 1				
+				ADbid = car(n0->segments)
+				Axy = car(ADbid->startEnd)
+				Awidth = ADbid->width
+				foreach(n1 cdr(n0->segments)
+					Bxy = car(n1->startEnd)
+					Cxy = cadr(n1->startEnd)
+					when(expt(axlDistance(Axy Bxy) 2) + expt(axlDistance(Bxy Cxy) 2) >= expt(axlDistance(Axy Cxy) 2) && S_setting == "CheckAcuteAngle"
+						DrcID = axlDBCreateExternalDRC(list("\310\361\275\307\327\337\317\337" "\267\307\310\361\275\307") Bxy nV list(n1 ADbid) nil "\310\361\275\307")
+						axlDBAddProp(car(DrcID) list("DRCLAYER" strcat("BOARD GEOMETRY/OUTLINE;DRC ERROR CLASS/" nV ";ETCH/" nV ";PIN/" nV ";VIA CLASS/" nV)))
+					)
+					when(Awidth != n1->width && S_setting == "CheckClineWidthChange"
+						DrcID = axlDBCreateExternalDRC(list("\317\337\277\355\315\273\261\344" "\317\337\277\355\322\273\326\302") Bxy nV list(n1 ADbid) nil "\262\273\322\273\326\302")
+						axlDBAddProp(car(DrcID) list("DRCLAYER" strcat("BOARD GEOMETRY/OUTLINE;DRC ERROR CLASS/" nV ";ETCH/" nV ";PIN/" nV ";VIA CLASS/" nV)))
+					)
+					Awidth = n1->width
+					Axy = Bxy
+					ADbid = n1
+				)
+			)
+		)
+	)
+	t
+)
+)
+
+
+
+
+;----------Drc自动优化----------------
+procedure( DrcAuto_main(S_setting)
+let((tt StdOut)
+	StdOut = "Result=0"
+	foreach(n0 cdr(parseString(S_setting "|"))
+		case(n0
+			("CheckIsland=1"
+				axlDBCloak('DrcAuto_Island() nil)
+			)
+			("CheckThermalRelief=1"
+				axlDBCloak('DrcAuto_ThermalRelief() 'shape)
+			)
+			("CheckSold2ShapeSpacing=1"
+				axlDBCloak('DrcAuto_Sold2ShapeSpacing() nil)
+			)
+			("CheckSold2PadClineSpacing=1"
+				axlDBCloak('DrcAuto_Sold2PadClineSpacing() nil)
+			)
+			("CheckAcuteAngle=1"
+				axlDBCloak('DrcAuto_AcuteAngle() nil)
+			)
+		)
+	)
+;	axlDRCUpdate(t)
+	axlDBRefreshId(nil)
+	StdOut
+)
+)
+
+;----------自动优化孤铜----------------
+procedure( DrcAuto_Island()
+let((tt)
+	axlDBRefreshId(nil)
+	foreach(n0 axlDBGetDesign()->drcs
+		when(n0->source == "\271\302\315\255"
+			when(car(n0->violations)->parent
+				when(index(car(n0->violations)->parent->name "MARK")
+					axlDRCWaive(t n0)
+				)
+				when(index(car(n0->violations)->parent->name "BGA")
+					axlDRCWaive(t n0)
+				)
+				when(car(n0->violations)->parent->refdes
+					when(rexMatchp("^U+" car(n0->violations)->parent->refdes)
+						axlDRCWaive(t n0)
+					)
+				)
+			)
+			when(car(n0->violations)->definition->plating == "NON_PLATED"
+				axlDRCWaive(t n0)
+			)
+			;println(car(n0->violations)->parent->refdes)
+;			if(rexMatchp("^J+" car(n0->violations)->parent->refdes) then
+;				axlDBAssignNet(car(n0->violations) car(axlSelectByName("NET" '("GND"))) t)
+;				axlClearSelSet()
+;				tt = axlMXYSub(car(reverse(car(n0->violations)->bBox)) car(car(n0->violations)->bBox))
+;				sprintf(tt "%d" ceiling(min(car(tt) cadr(tt))/3))
+;				axlDBAddProp(car(n0->violations) list("DYN_FIXED_THERM_WIDTH" tt))
+;				axlDeleteObject(n0 'ripup)
+;				axlDBRefreshId(nil)
+;			else
+;				axlDRCWaive(t n0)
+;			)
+		)
+	)
+	t
+)
+)
+
+;----------自动优化散热焊盘----------------
+procedure( DrcAuto_ThermalRelief()
+let((tt)
+	axlDBRefreshId(nil)
+	foreach(n0 axlDBGetDesign()->drcs
+		when(n0->source == "\311\242\310\310\272\270\305\314"		
+			tt = axlMXYSub(car(reverse(car(n0->violations)->bBox)) car(car(n0->violations)->bBox))
+			if(car(axlDBGetDesignUnits()) == "millimeters" then
+				sprintf(tt "%.2f" min(car(tt) cadr(tt))/3)
+			else
+				sprintf(tt "%d" ceiling(min(car(tt) cadr(tt))/3))
+			)
+			axlDBAddProp(car(n0->violations) list("DYN_FIXED_THERM_WIDTH" tt))
+			axlDeleteObject(n0 'ripup)
+			axlDBRefreshId(nil)
+		)
+	)
+	t
+)
+)
+
+;----------自动优化开窗到线距离----------------
+procedure( DrcAuto_Sold2PadClineSpacing()
+let(()
+	axlDBRefreshId(nil)
+	foreach(n0 axlDBGetDesign()->drcs
+		when(n0->name == "Soldermask to VIA Spacing"
+			foreach(n1 n0->violations
+				when(n1->objType == "via" && n1->net->name == "GND"
+					axlDRCWaive(t n0)
+				)
+			)
+		)
+		when(n0->name == "Soldermask to Pad and Cline Spacing"
+			if(car(n0->violations)->objType == "pin" || car(n0->violations)->objType == "shape" then
+				IDPinShape = car(n0->violations)
+				IDViaCline = cadr(n0->violations)
+			else
+				IDPinShape = cadr(n0->violations)
+				IDViaCline = car(n0->violations)				
+			)
+			when(IDPinShape->objType == "shape" && IDViaCline->net->name == "GND"
+				axlDRCWaive(t n0)
+			)
+			when(IDPinShape->objType == "pin" && IDViaCline->net->name == IDPinShape->net->name
+				axlDRCWaive(t n0)
+			)
+		)
+	)
+	t
+)
+)
+
+;----------自动优化开窗到铜皮距离----------------
+procedure( DrcAuto_Sold2ShapeSpacing()
+let(()
+	axlDBRefreshId(nil)
+	foreach(n0 axlDBGetDesign()->drcs
+		when(n0->source == "SOLDERMASK_SHAPE_SPACING"
+			foreach(n1 n0->violations
+				when(n1->objType == "shape" && n1->net->name == "GND"
+					axlDRCWaive(t n0)
+				)
+			)
+		)
+	)
+	t
+)
+)
+
+;----------自动优化锐角走线----------------
+procedure( DrcAuto_AcuteAngle()
+let((D1 D2 MinID MaxID P0 P1 path S_layer ID_net)
+	foreach(n0 axlDBGetDesign()->drcs
+		when(n0->source == "\310\361\275\307\327\337\317\337"
+			D1 = axlDistance(car(car(n0->violations)->startEnd) cadr(car(n0->violations)->startEnd))
+			D2 = axlDistance(car(cadr(n0->violations)->startEnd) cadr(cadr(n0->violations)->startEnd))
+			if(D1 >= D2 then
+				MinID = cadr(n0->violations)
+				MaxID = car(n0->violations)
+			else				
+				MinID = car(n0->violations)
+				MaxID = cadr(n0->violations)
+			)			
+			P0 = axlGeoRotatePt(90.0 car(MinID->startEnd) cadr(MinID->startEnd))
+			P1 = car(axl_ol_ol2(MaxID->startEnd list(P0 cadr(MinID->startEnd))))
+			path = axlPathStart(list(cadr(MinID->startEnd) P1 car(MaxID->startEnd)) MinID->width)
+			S_layer = MinID->layer
+			ID_net = MinID->net
+			axlDeleteObject(n0->violations)
+			axlDBCreatePath(path S_layer ID_net)	
+		)
+	)
+)
+)
+
+
+
+
+
+;----------Drc读----------------
+procedure( DrcRead(@optional S_setting)
+prog((tt StdOut)	
+;	axlDRCUpdate(t)
+	axlDBRefreshId(nil)
+	StdOut = "Result=0"
+	unless(S_setting
+		StdOut = "Result=1|errInfo=Have No Drc Result"
+		return(StdOut)
+	)
+	foreach(n0 append(axlDBGetDesign()->drcs axlDBGetDesign()->waived)
+		tt = n0->source
+		when(n0->source == "NONE" || n0->source == "DEFAULT"
+			tt = n0->name
+		)
+		when(assoc(tt L_ConName)
+			tt = cadr(assoc(tt L_ConName))
+		)
+		when(tt == cadr(assoc(car(parseString(S_setting "=")) L_ConName))
+			;tt = "test"
+			tt = strcat("|ConstraintName=" tt)
+			StdOut = strcat(StdOut tt)
+			tt = "|WaivedDrc=0"
+			when(n0->waived
+				tt = "|WaivedDrc=1"
+			)
+			StdOut = strcat(StdOut tt)
+			sprintf(tt "|RequiredValue=%s" n0->expected)
+			StdOut = strcat(StdOut tt)
+			when(car(n0->violations)
+				case(car(n0->violations)->objType
+					("pin"
+						when(car(n0->violations)->parent->refdes
+							if(car(n0->violations)->number && car(n0->violations)->net->name then
+								tt = strcat("PIN" "\"" car(n0->violations)->parent->refdes "." car(n0->violations)->number "(" car(n0->violations)->net->name ")\"")
+							else
+								if(car(n0->violations)->number then
+									tt = strcat("PIN" "\"" car(n0->violations)->parent->refdes "." car(n0->violations)->number "\"")
+								else
+									tt = strcat("PIN" "\"" car(n0->violations)->parent->refdes ".\"")
+								)
+							)
+						)
+					)
+					("text"
+						tt = strcat("Text" "\"" car(n0->violations)->text "\"")
+					)
+					(("path" "shape" "line")
+						tt = strcat(upperCase(car(n0->violations)->objType) "\"" car(n0->violations)->layer "\"")
+					)
+					(t
+						tt = upperCase(car(n0->violations)->objType)
+					)
+				)
+				sprintf(tt "|Object1=%s" tt)
+				StdOut = strcat(StdOut tt)
+			)
+			when(cadr(n0->violations)
+				case(cadr(n0->violations)->objType
+					("pin"
+						when(cadr(n0->violations)->parent->refdes
+							if(cadr(n0->violations)->number && cadr(n0->violations)->net->name then
+								tt = strcat("PIN" "\"" cadr(n0->violations)->parent->refdes "." cadr(n0->violations)->number "(" cadr(n0->violations)->net->name ")\"")
+							else
+								if(cadr(n0->violations)->number then
+									tt = strcat("PIN" "\"" cadr(n0->violations)->parent->refdes "." cadr(n0->violations)->number "\"")
+								else
+									tt = strcat("PIN" "\"" cadr(n0->violations)->parent->refdes ".\"")
+								)
+							)
+						)
+					)
+					("text"
+						tt = strcat("Text" "\"" cadr(n0->violations)->text "\"")
+					)
+					(("path" "shape" "line")
+						tt = strcat(upperCase(cadr(n0->violations)->objType) "\"" cadr(n0->violations)->layer "\"")
+					)
+					(t
+						tt = upperCase(cadr(n0->violations)->objType)
+					)
+				)
+				sprintf(tt "|Object2=%s" tt)
+				StdOut = strcat(StdOut tt)
+			)
+			sprintf(tt "|ActualValue=%s" n0->actual)
+			StdOut = strcat(StdOut tt)
+			when(n0->prop->COMMENT
+				sprintf(tt "|Comment=%s" n0->prop->COMMENT)
+				StdOut = strcat(StdOut tt)
+			)
+			sprintf(tt "|DrcXy=%g;%g" car(n0->xy) cadr(n0->xy))
+			StdOut = strcat(StdOut tt)
+			sprintf(tt "|DrcbBox=%g;%g;%g;%g" caar(n0->bBox) cadar(n0->bBox) caadr(n0->bBox) cadadr(n0->bBox))
+;			when(n0->violations
+;				if(cadr(n0->violations) then
+;					when(car(n0->violations)->bBox && cadr(n0->violations)->bBox
+;						Ax0 = caar(car(n0->violations)->bBox)
+;						Ay0 = cadar(car(n0->violations)->bBox)
+;						Ax1 = caadr(car(n0->violations)->bBox)
+;						Ay1 = cadadr(car(n0->violations)->bBox)
+;						Bx0 = caar(cadr(n0->violations)->bBox)
+;						By0 = cadar(cadr(n0->violations)->bBox)
+;						Bx1 = caadr(cadr(n0->violations)->bBox)
+;						By1 = cadadr(cadr(n0->violations)->bBox)
+;						sprintf(tt "|DrcbBox=%g%g;%g;%g" min(Ax0 Bx0) min(Ay0 By0) max(Ax1 Bx1) min(Ay1 By1))
+;					)
+;				else
+;					when(car(n0->violations)->bBox
+;						Ax0 = caar(car(n0->violations)->bBox)
+;						Ay0 = cadar(car(n0->violations)->bBox)
+;						Ax1 = caadr(car(n0->violations)->bBox)
+;						Ay1 = cadadr(car(n0->violations)->bBox)
+;						sprintf(tt "|DrcbBox=%g%g;%g;%g" Ax0 Ay0 Ax1 Ay1)					
+;					)
+;				)			
+;			)
+			StdOut = strcat(StdOut tt)
+			if(n0->prop->DRCLAYER then
+				sprintf(tt "|DrcLayer=%s" n0->prop->DRCLAYER)
+			else
+				sprintf(tt "|DrcLayer=%s" n0->layer)
+				foreach(n1 n0->violations
+					when(n1->layer
+						tt = strcat(tt ";" n1->layer)
+					)
+				)
+			)
+			StdOut = strcat(StdOut tt)
+			StdOut = strcat(StdOut "~")
+		)
+	)
+	return(StdOut)
+)
+)
+
+;----------Drc改变属性----------------
+
+procedure( DrcChangeProp(S_setting)
+let((StdOut L_drc CNSname CNSLayer tt CNSwaive CNSDelete CNSxy ll)	
+	
+	StdOut = "Result=0"
+;	axlDRCUpdate(t)
+	axlDBRefreshId(nil)
+	L_drc = '()
+	foreach(n0 append(axlDBGetDesign()->drcs axlDBGetDesign()->waived)
+		CNSname = n0->source
+		when(n0->source == "NONE" || n0->source == "DEFAULT"
+			CNSname = n0->name
+		)
+		when(assoc(CNSname L_ConName)		
+			CNSname = cadr(assoc(CNSname L_ConName))
+		)
+		CNSLayer = '()
+		CNSLayer = append1(CNSLayer n0->layer)
+		foreach(n1 n0->violations
+			when(n1->layer
+				CNSLayer = append1(CNSLayer n1->layer)
+			)
+		)
+		when(n0->prop->DRCLAYER
+			CNSLayer = parseString(n0->prop->DRCLAYER ";")
+		)
+		CNSLayer = sort(CNSLayer 'alphalessp)
+		L_drc = append1(L_drc list(list(n0->xy CNSname CNSLayer) n0))
+	)
+	foreach(n0 parseString(buildString(cddr(parseString(S_setting "|\r\n")) "|") "~")
+		foreach(n1 parseString(n0 "|")
+			tt = cdr(parseString(n1 ";|="))
+			when(car(tt) == "-"
+				return("Result=1|errInfo=200000204")
+			)
+			case(car(parseString(n1 "|="))
+				("ConstraintName"
+					CNSname = car(tt)
+				)
+				("WaivedDrc"
+					CNSwaive = nil
+					when(car(tt) == "1"
+						CNSwaive = t
+					)
+				)
+				("DrcXy"
+					CNSxy = list(atof(car(tt)) atof(cadr(tt)))
+				)
+				("DrcLayer"
+					CNSLayer = sort(tt 'alphalessp)
+				)
+				("Delete"
+					CNSDelete = nil					
+					when(car(tt) == "1"
+						CNSDelete = t
+					)
+				)
+			)
+		)
+		ll = assoc(list(CNSxy CNSname CNSLayer) L_drc)
+		when(ll
+			when(cadr(ll)->waived != CNSwaive
+				axlDRCWaive(CNSwaive cadr(ll))
+			)			
+			when(CNSDelete
+				axlDeleteObject(cadr(ll))
+				axlDBRefreshId(nil)
+			)
+			axlDBRefreshId(nil)
+		)
+	)
+	StdOut
+)
+)
+
+;----------Drc定位----------------
+procedure( DrcLocation(S_setting)
+let((tt ll WinbBox)
+	foreach(n0 cddr(parseString(S_setting "|\r\n"))
+		tt = cdr(parseString(n0 "=;"))
+		case(car(parseString(n0 "="))
+			("DrcXy"
+				ll = strcat("zoom center x " car(tt) " " cadr(tt))
+				StdOut = "Result=0"
+			)
+			("DrcbBox"
+				WinbBox = list(list(2*atof(nth(0 tt))-atof(nth(2 tt)) 2*atof(nth(1 tt))-atof(nth(3 tt))) 
+					list(2*atof(nth(2 tt))-atof(nth(0 tt)) 2*atof(nth(3 tt))-atof(nth(1 tt)))
+				)
+				axlWindowBoxSet(WinbBox)
+				StdOut = "Result=0"
+			)
+			("DrcLayer"				
+				axlVisibleDesign(nil)
+				foreach(n0 tt
+					axlVisibleLayer(n0 t)
+				)
+				axlVisibleUpdate(t)
+				StdOut = "Result=0"
+			)
+			(t
+				StdOut = "Result=1|errInfo=Drc Location Error"
+			)
+		)
+	)
+	axlShell(ll)
+	StdOut
+)
+)
+
+;----------读路径----------------
+procedure( Read_Path()
+let((StdOut)	
+	StdOut = strcat("Result=0|FileName=" axlGetDrawingName())
+	StdOut
+)
+)
+
+
+
+
+
+
+;----------导入网表----------------
+procedure( Netlist_In(S_setting)
+let((tt DrawingName StdOut)
+	DrawingName = axlGetDrawingName()
+	deleteFile(strcat(DrawingName ".lck"))
+	
+	Cfg_Port = outfile("allegro.cfg")
+	fprintf( Cfg_Port "[ComponentDefinitionProps]\n")
+	fprintf( Cfg_Port "ALT_SYMBOLS=YES\n")
+	fprintf( Cfg_Port "CLASS=YES\n")
+	fprintf( Cfg_Port "PART_NUMBER=YES\n")
+	fprintf( Cfg_Port "TOL=YES\n")
+	fprintf( Cfg_Port "VALUE=YES\n")
+	fprintf( Cfg_Port "POWER_GROUP=YES\n")
+	fprintf( Cfg_Port "SWAP_INFO=YES\n")
+	fprintf( Cfg_Port "CDS_FSP_FPGA_SYMBOL=YES\n")
+	fprintf( Cfg_Port "\n")
+	
+	fprintf( Cfg_Port "[ComponentInstanceProps]\n")
+	fprintf( Cfg_Port "GROUP=YES\n")
+	fprintf( Cfg_Port "ROOM=YES\n")
+	fprintf( Cfg_Port "VOLTAGE=YES\n")
+	fprintf( Cfg_Port "CDS_FSP_LIB_PART_MODEL=YES\n")
+	fprintf( Cfg_Port "CDS_FSP_IS_FPGA=YES\n")
+	fprintf( Cfg_Port "CDS_FSP_INSTANCE_NAME=YES\n")
+	fprintf( Cfg_Port "CDS_FSP_INSTANCE_ID=YES\n")
+	fprintf( Cfg_Port "SIGNAL_MODEL=YES\n")
+	fprintf( Cfg_Port "NO_XNET_CONNECTION=YES\n")
+	fprintf( Cfg_Port "\n")
+	
+	fprintf( Cfg_Port "[netprops]\n")
+	fprintf( Cfg_Port "BUS_NAME=YES\n")
+	fprintf( Cfg_Port "CLOCK_NET=YES\n")
+	fprintf( Cfg_Port "DIFFERENTIAL_PAIR=YES\n")
+	fprintf( Cfg_Port "DIFFP_2ND_LENGTH=YES\n")
+	fprintf( Cfg_Port "DIFFP_LENGTH_TOL=YES\n")
+	fprintf( Cfg_Port "ECL=YES\n")
+	fprintf( Cfg_Port "ECL_TEMP=YES\n")
+	fprintf( Cfg_Port "ELECTRICAL_CONSTRAINT_SET=YES\n")
+	fprintf( Cfg_Port "EMC_CRITICAL_NET=YES\n")
+	fprintf( Cfg_Port "IMPEDANCE_RULE=YES\n")
+	fprintf( Cfg_Port "MATCHED_DELAY=YES\n")
+	fprintf( Cfg_Port "MAX_EXPOSED_LENGTH=YES\n")
+	fprintf( Cfg_Port "MAX_FINAL_SETTLE=YES\n")
+	fprintf( Cfg_Port "MAX_OVERSHOOT=YES\n")
+	fprintf( Cfg_Port "MAX_VIA_COUNT=YES\n")
+	fprintf( Cfg_Port "MIN_BOND_LENGTH=YES\n")
+	fprintf( Cfg_Port "MIN_HOLD=YES\n")
+	fprintf( Cfg_Port "MIN_LINE_WIDTH=YES\n")
+	fprintf( Cfg_Port "MIN_NECK_WIDTH=YES\n")
+	fprintf( Cfg_Port "MIN_NOISE_MARGIN=YES\n")
+	fprintf( Cfg_Port "MIN_SETUP=YES\n")
+	fprintf( Cfg_Port "NET_PHYSICAL_TYPE=YES\n")
+	fprintf( Cfg_Port "NET_SPACING_TYPE=YES\n")
+	fprintf( Cfg_Port "NET_SHORT=YES\n")
+	fprintf( Cfg_Port "NO_GLOSS=YES\n")
+	fprintf( Cfg_Port "NO_PIN_ESCAPE=YES\n")
+	fprintf( Cfg_Port "NO_RAT=YES\n")
+	fprintf( Cfg_Port "NO_RIPUP=YES\n")
+	fprintf( Cfg_Port "NO_ROUTE=YES\n")
+	fprintf( Cfg_Port "NO_TEST=YES\n")
+	fprintf( Cfg_Port "PROBE_NUMBER=YES\n")
+	fprintf( Cfg_Port "PROPAGATION_DELAY=YES\n")
+	fprintf( Cfg_Port "RELATIVE_PROPAGATION_DELAY=YES\n")
+	fprintf( Cfg_Port "RATSNEST_SCHEDULE=YES\n")
+	fprintf( Cfg_Port "ROUTE_PRIORITY=YES\n")
+	fprintf( Cfg_Port "SHIELD_NET=YES\n")
+	fprintf( Cfg_Port "SHIELD_TYPE=YES\n")
+	fprintf( Cfg_Port "STUB_LENGTH=YES\n")
+	fprintf( Cfg_Port "SUBNET_NAME=YES\n")
+	fprintf( Cfg_Port "TS_ALLOWED=YES\n")
+	fprintf( Cfg_Port "VOLTAGE=YES\n")
+	fprintf( Cfg_Port "VOLTAGE_LAYER=YES\n")
+	fprintf( Cfg_Port "CDS_FSP_NET=YES\n")
+	fprintf( Cfg_Port "CDS_FSP_UID=YES\n")
+	fprintf( Cfg_Port "CDS_FSP_BUS_INDEX=YES\n")
+	fprintf( Cfg_Port "NET_GROUP_GRP_NAME=YES\n")
+	fprintf( Cfg_Port "\n")
+	
+	fprintf( Cfg_Port "[functionprops]\n")
+	fprintf( Cfg_Port "GROUP=YES\n")
+	fprintf( Cfg_Port "HARD_LOCATION=YES\n")
+	fprintf( Cfg_Port "NO_SWAP_GATE=YES\n")
+	fprintf( Cfg_Port "NO_SWAP_GATE_EXT=YES\n")
+	fprintf( Cfg_Port "NO_SWAP_PIN=YES\n")
+	fprintf( Cfg_Port "ROOM=YES\n")
+	fprintf( Cfg_Port "CDS_FSP_TERM_NAME=YES\n")
+	fprintf( Cfg_Port "CDS_FSP_UID=YES\n")
+	fprintf( Cfg_Port "CDS_FSP_TERM_TYPE=YES\n")
+	fprintf( Cfg_Port "CDS_FSP_MAPPED_CELL=YES\n")
+	fprintf( Cfg_Port "CDS_FSP_TERM_INDEX=YES\n")
+	fprintf( Cfg_Port "CDS_FSP_FPGA_SYMBOL=YES\n")
+	fprintf( Cfg_Port "\n")
+	
+	fprintf( Cfg_Port "[pinprops]\n")
+	fprintf( Cfg_Port "NO_DRC=YES\n")
+	fprintf( Cfg_Port "NO_PIN_ESCAPE=YES\n")
+	fprintf( Cfg_Port "NO_SHAPE_CONNECT=YES\n")
+	fprintf( Cfg_Port "NO_SWAP_PIN=YES\n")
+	fprintf( Cfg_Port "PIN_ESCAPE=YES\n")
+	fprintf( Cfg_Port "PIN_SIGNAL_MODEL=YES\n")
+	fprintf( Cfg_Port "NET_SHORT=YES\n")
+	fprintf( Cfg_Port "\n")
+	
+	close( Cfg_Port )
+	ss = axlGetVariable("ads_sdlog")
+	when(ss
+		axlUnsetVariable("ads_sdlog")
+	)
+	
+	;axlSaveDesign(?design nil ?mode "nocheck") ; 
+	deleteFile(strcat(axlCurrentDesign() ".brd.lck"))
+	
+	Scr_Port = outfile("./scr_file.scr")
+	fprintf( Scr_Port "version 16.3\n")	
+	fprintf( Scr_Port "\n")
+	fprintf( Scr_Port "save \n")
+	fprintf( Scr_Port "fillin yes \n")	
+	close( Scr_Port )
+	axlShell( "replay ./scr_file.scr")
+	deleteFile( "./scr_file.scr" )
+	
+	tt = strcat("pstswp.exe -pst -d \"" nth(3 parseString(S_setting "|=\r\n")) "\" -n ./ -c allegro.cfg -v 1")
+	if(axlRunBatchDBProgram("pstswp.exe" tt ?logfile "netlist.log" ?noUnload t ?noProgress t ?noExitMsgs t) == t then
+		deleteFile(strcat(axlCurrentDesign() ".brd.lck"))
+		tt = strcat("netrev -e -i ./ -y 1 -z \"" axlCurrentDesign() ".brd\"")
+		if(axlRunBatchDBProgram("netrev" tt ?logfile "netrev.lst" ?noUnload t ?noProgress t ?noExitMsgs t) == t then
+			deleteFile("netrev.lst")
+			StdOut = "Result=0"
+		else
+			StdOut = "Result=1|errInfo=Netlist TO brd Error"
+		)
+		deleteFile("pstchip.dat")
+		deleteFile("pstxnet.dat")
+		deleteFile("pstxprt.dat")
+		deleteFile("netlist.log")
+	else
+		StdOut = "Result=1|errInfo=Dsn TO Netlist Error"
+	)
+	deleteFile("allegro.cfg")
+	when(ss
+		axlSetVariable("ads_sdlog" ss)
+	)
+	axlOpenDesign(?design strcat(axlCurrentDesign() ".brd"))
+	
+	StdOut
+)
+)
+
+;----------生成光绘----------------
+procedure( Gerber_Main(S_setting)
+prog((tt Ref_Silk Assembly GerberDir)
+	Ref_Silk = nil
+	Assembly = nil
+	foreach(n0 cddr(parseString(S_setting "|\r\n"))
+		tt = atoi(cadr(parseString(n0 "=;")))
+		case(car(parseString(n0 "="))
+			("Ref_Silk"
+				when(tt != 0
+					Ref_Silk = t
+				)
+			)
+			("Assembly"
+				when(tt != 0
+					Assembly = t
+				)
+			)
+		)
+	)
+	Gerber_Int(Ref_Silk Assembly)
+	Gerber_NCdrillInt()
+	;----------------
+	
+	/*
+	Scr_Port = outfile("./scr_file.scr")
+	fprintf( Scr_Port "version 16.3\n")	
+	fprintf( Scr_Port "\n")
+	;------artwork----artwork
+	fprintf( Scr_Port "artwork \n")	
+	fprintf( Scr_Port "FORM film_control apertures  \n")
+	fprintf( Scr_Port "setwindow form.apt_wheels\n")
+	fprintf( Scr_Port "FORM apt_wheels 1 delete  \n")
+	fprintf( Scr_Port "FORM apt_wheels add_wheel  \n")
+	fprintf( Scr_Port "FORM apt_wheels 1 edit\n")
+	fprintf( Scr_Port "setwindow form.apt_stations\n")
+	fprintf( Scr_Port "FORM apt_stations auto With Rotation \n")
+	fprintf( Scr_Port "FORM apt_stations sort By Station \n")
+	fprintf( Scr_Port "FORM apt_stations apt_done  \n")
+	fprintf( Scr_Port "setwindow form.apt_wheels\n")
+	fprintf( Scr_Port "FORM apt_wheels done\n")	
+	fprintf( Scr_Port "FORM film_control film_control  \n")
+	fprintf( Scr_Port "FORM film_control select_all  \n")
+	fprintf( Scr_Port "FORM film_control database_check YES \n")	
+	fprintf( Scr_Port "FORM film_control create  \n")
+	fprintf( Scr_Port "FORM film_control ok\n")	
+	;------ncdrill customization----
+	fprintf( Scr_Port "ncdrill customization \n")
+	fprintf( Scr_Port "generaledit \n")
+	fprintf( Scr_Port "setwindow form.nc_drillcustomization\n")
+	fprintf( Scr_Port "FORM nc_drillcustomization auto_symbols  \n")
+	fprintf( Scr_Port "fillin yes \n")
+	fprintf( Scr_Port "FORM nc_drillcustomization done  \n")
+	fprintf( Scr_Port "fillin yes \n")
+	;------nctape_full----nctape
+	fprintf( Scr_Port "nctape_full\n")
+	fprintf( Scr_Port "setwindow form.nc_drill\n")
+	fprintf( Scr_Port "FORM nc_drill execute  \n")
+	fprintf( Scr_Port "FORM nc_drill close  \n")
+	;------ncroute----ncroute
+	fprintf( Scr_Port "ncroute\n")
+	fprintf( Scr_Port "setwindow form.nc_route\n")
+	fprintf( Scr_Port "FORM nc_route execute\n")
+	fprintf( Scr_Port "FORM nc_route close\n")
+	
+	close( Scr_Port )
+	axlShell( "replay ./scr_file.scr")
+	deleteFile( "./scr_file.scr" )
+	*/
+	
+	createDir("Output Files")
+	GerberDir = strcat("Output Files/" buildString(parseString(axlCurrentDesign() " ") "_") "_CAM")
+	createDir(GerberDir)
+	foreach(n0 getDirFiles(GerberDir)
+		unless(isDir(n0)
+			deleteFile(strcat(GerberDir "/" n0))
+		)
+	)
+	Scr_Port = outfile("ncdrill.log")
+	close( Scr_Port )
+	Scr_Port = outfile("ncroute.log")
+	close( Scr_Port )
+	Scr_Port = outfile("photoplot.log")
+	close( Scr_Port )	
+	
+	;axlSaveDesign(?design nil ?mode "nocheck") ; 
+	deleteFile(strcat(axlCurrentDesign() ".brd.lck"))
+	Scr_Port = outfile("./scr_file.scr")
+	fprintf( Scr_Port "version 16.3\n")	
+	fprintf( Scr_Port "\n")
+	fprintf( Scr_Port "save \n")
+	fprintf( Scr_Port "fillin yes \n")	
+	close( Scr_Port )
+	axlShell( "replay ./scr_file.scr")
+	deleteFile( "./scr_file.scr" )
+	
+	
+	when(Assembly
+		Scr_Port = outfile("plctxt.log")
+		close( Scr_Port )
+		deleteFile("place_txt.txt")
+		tt = strcat("plctxt \"" axlCurrentDesign() ".brd\"")
+		axlRunBatchDBProgram("plctxt" tt ?logfile "plctxt.log" ?noUnload t ?noProgress t ?noExitMsgs t) 
+		axlOSFileMove("./place_txt.txt" strcat("./Output Files/" buildString(parseString(axlCurrentDesign() " ") "_") "_CAM/place_txt.txt"))
+	)
+	tt = strcat("nctape \"" axlCurrentDesign() ".brd\"")
+	axlRunBatchDBProgram("nctape" tt ?logfile "ncdrill.log" ?noUnload t ?noProgress t ?noExitMsgs t) 
+	tt = strcat("ncroute \"" axlCurrentDesign() ".brd\"")
+	axlRunBatchDBProgram("ncroute" tt ?logfile "ncroute.log" ?noUnload t ?noProgress t ?noExitMsgs t)
+	tt = strcat("artwork \"" axlCurrentDesign() ".brd\"")
+	axlRunBatchDBProgram("artwork" tt ?logfile "photoplot.log" ?noUnload t ?noProgress t ?noExitMsgs t)
+	
+	;----------
+	StdOut = OutputFileManager(getWorkingDir())
+	StdOut = strcat("Result=0|Path=" StdOut)
+	return(StdOut)
+)
+)
+
+;----------输出文件管理----------------
+procedure( OutputFileManager(S_dir)
+let((DirName DrawName)
+	DrawName = axlCurrentDesign()	
+	createDir("Output Files")
+	foreach(n0 getDirFiles(S_dir)
+		DirName = strcat(getWorkingDir() "/Output Files")		
+		cond(
+			(rexMatchp(".*.art$" n0) 
+			|| rexMatchp(strcat("^" DrawName ".*.drl$") n0) 
+			|| rexMatchp(strcat("^" DrawName ".rou$") n0) 
+			|| n0 == "art_aper.txt" 
+			|| rexMatchp(".*_param.txt$" n0)				;gerber文件			
+				DirName = strcat(DirName "/" buildString(parseString(DrawName " ") "_") "_CAM")
+				unless(isDir(DirName)
+					createDir(DirName)
+				)
+				if(rexMatchp(".*_param.txt$" n0) then
+					axlOSFileCopy(strcat(S_dir "/" n0) strcat(DirName "/" n0) nil)
+				else
+					axlOSFileMove(strcat(S_dir "/" n0) strcat(DirName "/" n0))
+				)
+				
+			)
+			
+			(n0 == strcat(DrawName "_WJG.brd");外加工文件
+				axlOSFileMove(strcat(S_dir "/" n0) strcat(DirName "/" n0))
+			)
+			
+			(n0 == strcat(DrawName ".emn") ;3D文件
+			|| n0 == strcat(DrawName ".emp") 
+			|| n0 == strcat(DrawName "_AB.emn")
+			|| n0 == strcat(DrawName "_AB.emp")
+				axlOSFileMove(strcat(S_dir "/" n0) strcat(DirName "/" n0))
+			)
+			
+			(n0 == strcat(DrawName "_TOP.dxf");DXF文件
+			|| n0 == strcat(DrawName "_BOTTOM.dxf")
+				axlOSFileMove(n0 strcat(DirName "/" n0))
+			)
+		)
+	)
+	DirName
+)
+)
+
+;----------钻孔初始化----------------
+procedure( Gerber_NCdrillInt()
+let((VisList bBoxXY dertar Dx Dy NCID Scr_Port)
+	VisList = axlVisibleGet()
+	axlVisibleDesign(nil)	
+	foreach(n0 axlSubclasses("MANUFACTURING")
+		if(rexMatchp("^NCLEGEND+" n0) then
+			axlVisibleLayer(strcat("MANUFACTURING/" n0) t)
+		)
+	)
+	axlSetFindFilter(?enabled '("NOALL" "SHAPES" "LINES" "TEXT" "FIGURES") ?onButtons '("ALLTYPES"))
+	axlAddSelectAll()
+	axlDeleteObject(axlGetSelSet())	
+	axlClearSelSet()
+	axlDBRefreshId(nil)
+	Dx = caadr(axlExtentDB()) + axlMKS2UU("20 mm")
+	Dy = lastelem(cadr(axlExtentDB()))
+		
+	Scr_Port = outfile("./scr_file.scr")
+	fprintf( Scr_Port "version 16.3\n")
+	fprintf( Scr_Port "ncdrill legend \n")
+	fprintf( Scr_Port "setwindow form.nc_drilllegend\n")
+	fprintf( Scr_Port "FORM nc_drilllegend done \n" )
+	fprintf( Scr_Port "setwindow pcb\n" )
+	fprintf( Scr_Port "pick grid %f %f\n" Dx Dy)
+	fprintf( Scr_Port "generaledit  \n")
+	close( Scr_Port )
+	axlShell( "replay ./scr_file.scr" )
+	deleteFile( "./scr_file.scr" )
+	
+	Scr_Port = outfile("./nc_param.txt")
+	fprintf( Scr_Port "INTEGER-PLACES         2\n")
+	fprintf( Scr_Port "DECIMAL-PLACES         3\n")
+	fprintf( Scr_Port "X-OFFSET               0.000000\n")
+	fprintf( Scr_Port "Y-OFFSET               0.000000\n")
+	fprintf( Scr_Port "FEEDRATE               1\n")
+	fprintf( Scr_Port "COORDINATES            ABSOLUTE\n")
+	fprintf( Scr_Port "OUTPUT-UNITS           ENGLISH\n")
+	fprintf( Scr_Port "TOOL-ORDER             INCREASING\n")
+	fprintf( Scr_Port "REPEAT-CODES           YES\n")
+	fprintf( Scr_Port "SUPPRESS-LEAD-ZEROES   YES\n")
+	fprintf( Scr_Port "SUPPRESS-TRAIL-ZEROES  NO\n")
+	fprintf( Scr_Port "SUPPRESS-EQUAL         NO\n")
+	fprintf( Scr_Port "TOOL-SELECT            YES\n")
+	fprintf( Scr_Port "OPTIMIZE_DRILLING      NO\n")
+	fprintf( Scr_Port "ENHANCED_EXCELLON      YES\n")
+	fprintf( Scr_Port "HEADER                 none\n")
+	fprintf( Scr_Port "LEADER                 12\n")
+	fprintf( Scr_Port "CODE                   ASCII\n")
+	fprintf( Scr_Port "SEPARATE               NO\n")
+	fprintf( Scr_Port "DRILLING               LAYER-PAIR\n")
+	fprintf( Scr_Port "BACKDRILL              NO\n")
+	close( Scr_Port )	
+	when(car(axlDBGetDesignUnits()) == "millimeters"
+		Scr_Port = outfile("./nc_param.txt")
+		fprintf( Scr_Port "INTEGER-PLACES         5\n")
+		fprintf( Scr_Port "DECIMAL-PLACES         5\n")
+		fprintf( Scr_Port "X-OFFSET               0.000000\n")
+		fprintf( Scr_Port "Y-OFFSET               0.000000\n")
+		fprintf( Scr_Port "FEEDRATE               1\n")
+		fprintf( Scr_Port "COORDINATES            ABSOLUTE\n")
+		fprintf( Scr_Port "OUTPUT-UNITS           METRIC\n")
+		fprintf( Scr_Port "TOOL-ORDER             INCREASING\n")
+		fprintf( Scr_Port "REPEAT-CODES           YES\n")
+		fprintf( Scr_Port "SUPPRESS-LEAD-ZEROES   YES\n")
+		fprintf( Scr_Port "SUPPRESS-TRAIL-ZEROES  NO\n")
+		fprintf( Scr_Port "SUPPRESS-EQUAL         NO\n")
+		fprintf( Scr_Port "TOOL-SELECT            YES\n")
+		fprintf( Scr_Port "OPTIMIZE_DRILLING      NO\n")
+		fprintf( Scr_Port "ENHANCED_EXCELLON      YES\n")
+		fprintf( Scr_Port "HEADER                 none\n")
+		fprintf( Scr_Port "LEADER                 12\n")
+		fprintf( Scr_Port "CODE                   ASCII\n")
+		fprintf( Scr_Port "SEPARATE               NO\n")
+		fprintf( Scr_Port "DRILLING               LAYER-PAIR\n")
+		fprintf( Scr_Port "BACKDRILL              NO\n")
+		close( Scr_Port )			
+	)
+	axlVisibleSet(VisList)
+)
+)
+
+;----------光绘初始化----------------
+procedure( Gerber_Int(t_Ref t_Ass)
+let((EtchList NcList Scr_Port L_Num)	
+	while(axlGetParam("artwork")->nChildren != 0
+		axlDeleteObject(axlGetParam("artwork"))
+		axlDBRefreshId(nil)
+	)	
+	DefLW = 5*expt(10 cadr(axlDBGetDesignUnits()))
+	ShapeBox = 100*expt(10 cadr(axlDBGetDesignUnits()))
+	when(car(axlDBGetDesignUnits()) == "millimeters"
+		DefLW = ceiling(DefLW*0.0254)
+		ShapeBox = ceiling(ShapeBox*0.0254)
+	)
+	L_Num = list(0 0 0 DefLW ShapeBox 1 0 0 0 0 0 0 1)
+	
+	;铜皮层
+	foreach(n0 axlSubclasses("ETCH")
+		EtchList = list("BOARD GEOMETRY/OUTLINE" 
+			strcat("ETCH/" n0) 
+			strcat("PIN/" n0) 
+			strcat("VIA CLASS/" n0)
+		)
+		axlfcreate(n0 L_Num EtchList)
+	)
+	
+	
+	;丝印
+	SilkList = '("BOARD GEOMETRY/OUTLINE"  
+		"PACKAGE GEOMETRY/SILKSCREEN_TOP" "BOARD GEOMETRY/SILKSCREEN_TOP"
+	)
+	when(t_Ref
+		SilkList = append1(SilkList "REF DES/SILKSCREEN_TOP")
+	)
+	axlfcreate("SILK_TOP" L_Num SilkList)
+	
+	SilkList = '("BOARD GEOMETRY/OUTLINE"  
+		"PACKAGE GEOMETRY/SILKSCREEN_BOTTOM" "BOARD GEOMETRY/SILKSCREEN_BOTTOM"
+	)
+	when(t_Ref
+		SilkList = append1(SilkList "REF DES/SILKSCREEN_BOTTOM")
+	)
+	axlfcreate("SILK_BOT" L_Num SilkList)
+	
+	;阻焊
+	axlfcreate("SOLD_TOP" L_Num 
+		'("BOARD GEOMETRY/OUTLINE" "PIN/SOLDERMASK_TOP" 
+			"PACKAGE GEOMETRY/SOLDERMASK_TOP" "BOARD GEOMETRY/SOLDERMASK_TOP"
+		)
+	)
+	axlfcreate("SOLD_BOT" L_Num 
+		'("BOARD GEOMETRY/OUTLINE" "PIN/SOLDERMASK_BOTTOM" 
+		"PACKAGE GEOMETRY/SOLDERMASK_BOTTOM" "BOARD GEOMETRY/SOLDERMASK_BOTTOM")
+	)
+	
+	;钢网
+	axlfcreate("PAST_TOP" L_Num 
+		'("BOARD GEOMETRY/OUTLINE" "PIN/PASTEMASK_TOP" 
+		"PACKAGE GEOMETRY/PASTEMASK_TOP")
+	)
+	axlfcreate("PAST_BOT" L_Num 
+		'("BOARD GEOMETRY/OUTLINE" "PIN/PASTEMASK_BOTTOM" 
+		"PACKAGE GEOMETRY/PASTEMASK_BOTTOM")
+	)
+	
+	
+	;钻孔	
+	NcList = '()
+	foreach(n0 axlSubclasses("MANUFACTURING")
+		if(rexMatchp("^NCLEGEND+" n0) then
+			NcList = append1(NcList strcat("MANUFACTURING/" n0))
+		)
+	)
+	NcList = append('("BOARD GEOMETRY/OUTLINE" "MANUFACTURING/NCDRILL_LEGEND" 
+		 "MANUFACTURING/NCDRILL_FIGURE") NcList
+	)
+	axlfcreate("DRILL" L_Num NcList)
+	;装配层
+	when(t_Ass
+		axlfcreate("ASMB_TOP" L_Num 
+			'("BOARD GEOMETRY/OUTLINE" "PACKAGE GEOMETRY/ASSEMBLY_TOP" "REF DES/ASSEMBLY_TOP")
+		)
+		axlfcreate("ASMB_BOT" L_Num 
+			'("BOARD GEOMETRY/OUTLINE" "PACKAGE GEOMETRY/ASSEMBLY_BOTTOM" "REF DES/ASSEMBLY_BOTTOM")
+		)
+	)
+	
+	;光绘参数
+	Scr_Port = outfile("./art_param.txt")
+	fprintf( Scr_Port "DEVICE-TYPE           GERBER_RS274X\n")
+	fprintf( Scr_Port "OUTPUT-UNITS          INCHES\n")
+	fprintf( Scr_Port "FILM-SIZE             2400000 1600000\n")
+	fprintf( Scr_Port "FORMAT                5.5\n")
+	fprintf( Scr_Port "ABORT-ON-ERROR        NO\n")
+	fprintf( Scr_Port "SCALE                 1\n")
+	fprintf( Scr_Port "SUPPRESS-LEAD-ZEROES  YES\n")
+	fprintf( Scr_Port "SUPPRESS-TRAIL-ZEROES NO\n")
+	fprintf( Scr_Port "SUPPRESS-EQUAL        YES\n")
+	fprintf( Scr_Port "UNDEF-APT-CONT        NO\n")	
+	close( Scr_Port )
+	
+	when(car(axlDBGetDesignUnits()) == "millimeters"
+		Scr_Port = outfile("./art_param.txt")
+		fprintf( Scr_Port "DEVICE-TYPE           GERBER_RS274X\n")
+		fprintf( Scr_Port "OUTPUT-UNITS          MM\n")
+		fprintf( Scr_Port "FILM-SIZE             2400000 1600000\n")
+		fprintf( Scr_Port "FORMAT                5.5\n")
+		fprintf( Scr_Port "ABORT-ON-ERROR        NO\n")
+		fprintf( Scr_Port "SCALE                 1\n")
+		fprintf( Scr_Port "SUPPRESS-LEAD-ZEROES  YES\n")
+		fprintf( Scr_Port "SUPPRESS-TRAIL-ZEROES NO\n")
+		fprintf( Scr_Port "SUPPRESS-EQUAL        YES\n")
+		fprintf( Scr_Port "UNDEF-APT-CONT        NO\n")	
+		close( Scr_Port )
+	)
+	
+	t
+)
+)
+
+
+
+;----------自动摆放字符----------------
+
+procedure( AutoText_Main1()
+prog((L_Vis TextID SymIDlist TextShapeID TextShapebBox UnplaceShapeID SymIDlist_T SymIDlist_TEshape SymIDlist_B tt L_refid)
+	;println(11)
+	StdOut = "Result=0"
+	;AutoText_Int()
+	;-------
+	case(nthelem(1 axlDBGetDesignUnits())
+		("mils"
+			v5 = 5
+			v10 = 10
+			v7 = 7
+			v12 = 12
+			v2 = 2
+		)
+		("millimeters"
+			v5 = 0.127
+			v10 = 0.254
+			v7 = 0.1778
+			v12 = 0.3048
+			v2 = 0.0508
+		)
+	)
+  Txt_height = axlGetParam("paramTextBlock:1")->height
+  Txt_width = axlGetParam("paramTextBlock:1")->width
+  Txt_Pwidth = axlGetParam("paramTextBlock:1")->photoWidth
+  Th = Txt_height / 2
+  Tw = Txt_width / 2
+  tta = (Th - v5)
+	defstruct(text_db_struct refid rludbox rludpoly)
+	
+	;---------
+	L_Vis = list(list("BOARD GEOMETRY/OUTLINE" "PIN/BOTTOM" "PACKAGE GEOMETRY/SILKSCREEN_BOTTOM" "BOARD GEOMETRY/SILKSCREEN_BOTTOM")
+	list("BOARD GEOMETRY/OUTLINE" "PIN/TOP" "PACKAGE GEOMETRY/SILKSCREEN_TOP" "BOARD GEOMETRY/SILKSCREEN_TOP"))
+	reflist = nil
+	AllPoly = nil
+	foreach(n0 L_Vis	
+		axlVisibleDesign(nil)
+		foreach(n1 n0
+			axlVisibleLayer(n1 t)
+		)
+		axlSetFindFilter(?enabled '("NOALL" "SYMBOLS") ?onButtons '("ALLTYPES"))
+		axlAddSelectAll()
+		SymbolID = axlGetSelSet()
+		axlClearSelSet()
+		
+		foreach(n1 SymbolID
+			foreach(n2 axlDBGetAttachedText(n1)
+				when(rexMatchp("^REF DES/SILKSCREEN_+" n2->layer)
+					text_name = n2->text
+					sym_bBox = axlDBGetExtents(n1 t)
+					sym_x = xCoord(n1->xy)
+					sym_y = yCoord(n1->xy)
+					case(n1->rotation
+						((0.0 180.0)
+							text_rot = 0
+							textxy = sym_x:(sym_y - Th)
+						)
+						((45.0 225.0)
+							text_rot = 45
+							textxy = (sym_x + tta):(sym_y - tta)
+						)
+						((90.0 270.0)
+							text_rot = 90
+							textxy = (sym_x + Th):sym_y
+						)
+						((135.0 315.0)
+							text_rot = 315
+							textxy = (sym_x - tta):(sym_y - tta)
+						)
+					)
+					textdb = make_axlTextOrientation(?textBlock "1" ?rotation text_rot ?mirrored nil ?justify "center")
+					text_layer = n2->layer
+					text_db = caar(axlDBCreateText(text_name textxy textdb text_layer n1))
+					axlDeleteObject(n2)
+					
+					text_bBox = text_db->bBox
+					text_b_x = xCoord(yCoord(text_bBox)) - xCoord(xCoord(text_bBox))
+					text_b_y = yCoord(yCoord(text_bBox)) - yCoord(xCoord(text_bBox))
+					
+					case(text_db->rotation
+						(0.0
+							
+							path = axlPathStart(list(car(sym_bBox)))
+							axlPathLine(path 0.0 xCoord(yCoord(sym_bBox)):yCoord(xCoord(sym_bBox)))
+							axlPathLine(path 0.0 cadr(sym_bBox))
+							axlPathLine(path 0.0 xCoord(xCoord(sym_bBox)):yCoord(yCoord(sym_bBox)))
+							axlPathLine(path 0.0 car(sym_bBox))
+							PathID = caar(axlDBCreatePath(path))
+							M_Poly = car(axlPolyFromDB(PathID))
+							axlDeleteObject(PathID)
+							AllPoly = cons(M_Poly AllPoly)
+							
+							r_box = list((xCoord(yCoord(sym_bBox)) + v2):(yCoord(yCoord(text_bBox)) - Txt_height - Txt_Pwidth)
+								(xCoord(yCoord(sym_bBox)) + text_b_x + v2):yCoord(yCoord(text_bBox))
+							)
+							path = axlPathStart(list(car(r_box)))
+							axlPathLine(path 0.0 xCoord(yCoord(r_box)):yCoord(xCoord(r_box)))
+							axlPathLine(path 0.0 cadr(r_box))
+							axlPathLine(path 0.0 xCoord(xCoord(r_box)):yCoord(yCoord(r_box)))
+							axlPathLine(path 0.0 car(r_box))
+							PathID = caar(axlDBCreatePath(path))
+							r_Poly = car(axlPolyFromDB(PathID))
+							axlDeleteObject(PathID)
+							
+							l_box = list((xCoord(xCoord(sym_bBox)) - v2):(yCoord(yCoord(text_bBox)) - Txt_height - Txt_Pwidth)
+								(xCoord(xCoord(sym_bBox)) - text_b_x - v2):yCoord(yCoord(text_bBox))
+							)
+							path = axlPathStart(list(car(l_box)))
+							axlPathLine(path 0.0 xCoord(yCoord(l_box)):yCoord(xCoord(l_box)))
+							axlPathLine(path 0.0 cadr(l_box))
+							axlPathLine(path 0.0 xCoord(xCoord(l_box)):yCoord(yCoord(l_box)))
+							axlPathLine(path 0.0 car(l_box))
+							PathID = caar(axlDBCreatePath(path))
+							l_Poly = car(axlPolyFromDB(PathID))
+							axlDeleteObject(PathID)
+							
+							u_box = list(xCoord(xCoord(text_bBox)):(yCoord(yCoord(sym_bBox)) + v2)
+								xCoord(yCoord(text_bBox)):(yCoord(yCoord(sym_bBox)) + Txt_height + Txt_Pwidth + v2)
+							)
+							path = axlPathStart(list(car(u_box)))
+							axlPathLine(path 0.0 xCoord(yCoord(u_box)):yCoord(xCoord(u_box)))
+							axlPathLine(path 0.0 cadr(u_box))
+							axlPathLine(path 0.0 xCoord(xCoord(u_box)):yCoord(yCoord(u_box)))
+							axlPathLine(path 0.0 car(u_box))
+							PathID = caar(axlDBCreatePath(path))
+							u_Poly = car(axlPolyFromDB(PathID))
+							axlDeleteObject(PathID)
+							
+							d_box = list(xCoord(xCoord(text_bBox)):(yCoord(xCoord(sym_bBox)) - v2)
+								xCoord(yCoord(text_bBox)):(yCoord(xCoord(sym_bBox)) - Txt_height - Txt_Pwidth - v2)
+							)
+							path = axlPathStart(list(car(d_box)))
+							axlPathLine(path 0.0 xCoord(yCoord(d_box)):yCoord(xCoord(d_box)))
+							axlPathLine(path 0.0 cadr(d_box))
+							axlPathLine(path 0.0 xCoord(xCoord(d_box)):yCoord(yCoord(d_box)))
+							axlPathLine(path 0.0 car(d_box))
+							PathID = caar(axlDBCreatePath(path))
+							d_Poly = car(axlPolyFromDB(PathID))
+							axlDeleteObject(PathID)
+							
+							ss = make_text_db_struct(?refid text_db ;?rludbox list(text_db r_box l_box u_box d_box)
+								?rludpoly list(r_Poly l_Poly u_Poly d_Poly )
+							)
+							reflist = cons(ss reflist)
+						)
+						(90.0
+							path = axlPathStart(list(car(sym_bBox)))
+							axlPathLine(path 0.0 xCoord(yCoord(sym_bBox)):yCoord(xCoord(sym_bBox)))
+							axlPathLine(path 0.0 cadr(sym_bBox))
+							axlPathLine(path 0.0 xCoord(xCoord(sym_bBox)):yCoord(yCoord(sym_bBox)))
+							axlPathLine(path 0.0 car(sym_bBox))
+							PathID = caar(axlDBCreatePath(path))
+							M_Poly = car(axlPolyFromDB(PathID))
+							axlDeleteObject(PathID)
+							AllPoly = cons(M_Poly AllPoly)
+							
+							
+							r_box = list(xCoord(yCoord(sym_bBox)):(yCoord(yCoord(text_bBox)) - Txt_height - Txt_Pwidth)
+								(xCoord(yCoord(sym_bBox)) + text_b_x):yCoord(yCoord(text_bBox))
+							)
+							l_box = list(xCoord(xCoord(sym_bBox)):(yCoord(yCoord(text_bBox)) - Txt_height - Txt_Pwidth)
+								(xCoord(xCoord(sym_bBox)) - text_b_x):yCoord(yCoord(text_bBox))
+							)
+							u_box = list(xCoord(xCoord(text_bBox)):yCoord(yCoord(sym_bBox))
+								xCoord(yCoord(text_bBox)):(yCoord(yCoord(sym_bBox)) + Txt_height + Txt_Pwidth)
+							)
+							d_box = list(xCoord(xCoord(text_bBox)):yCoord(xCoord(sym_bBox))
+								xCoord(yCoord(text_bBox)):(yCoord(xCoord(sym_bBox)) + Txt_height + Txt_Pwidth)
+							)
+							;reflist = cons(list(text_db r_box l_box u_box d_box) reflist)
+						)
+					)
+				)
+			)
+		)
+;		axlVisibleLayer(strcat("REF DES/SILKSCREEN_" cadr(parseString(cadr(n0) "/"))) t)
+;		axlSetFindFilter(?enabled '("NOALL" "text" "pins") ?onButtons '("ALLTYPES"))
+		;println(AllPoly)
+		AllPoly = axlPolyOperation(car(AllPoly) cdr(AllPoly) 'OR)
+		foreach(n1 reflist
+			when(n1->refid->text == "Q1"
+				foreach(n2 n1->rludpoly
+					when(car(axlPolyOperation(n2 AllPoly 'AND)) == nil
+						AllPoly = cons(n2 AllPoly)
+					)
+				)
+			
+			
+			)
+;		when(car(n1)->text == "C12"
+;			Escape = t
+;			println(car(n1)->bBox)
+;			println(cdr(n1))
+;			foreach(n2 cdr(n1)
+;				axlSingleSelectBox(n2)
+;				foreach(n3 axlGetSelSet()
+;					println(n3->??)
+;				)
+;				when(t == nil && Escape
+;					
+;					move_x = sym_x - xCoord(xCoord(text_bBox)) + (text_b_x / 2)
+;					move_y = yCoord(yCoord(sym_bBox)) - yCoord(xCoord(text_bBox))
+;					axlTransformObject(car(n1) ?move move_x:move_y)
+;					Escape = nil
+;				)
+;				axlClearSelSet()
+;			)
+;		)
+		)
+	)
+	
+	StdOut
+)
+)
+
+
+procedure( AutoText_Main()
+let((L_Vis TextID SymIDlist TextShapeID TextShapebBox UnplaceShapeID SymIDlist_T SymIDlist_TEshape SymIDlist_B tt)
+	;println(11)
+	StdOut = "Result=0"
+	AutoText_Int()
+	L_Vis = list(list("PIN/BOTTOM" "PACKAGE GEOMETRY/SILKSCREEN_BOTTOM" "BOARD GEOMETRY/SILKSCREEN_BOTTOM")
+	list("PIN/TOP" "PACKAGE GEOMETRY/SILKSCREEN_TOP" "BOARD GEOMETRY/SILKSCREEN_TOP"))
+	foreach(n0 L_Vis
+		axlVisibleDesign(nil)
+		foreach(n1 n0
+			axlVisibleLayer(n1 t)
+		)
+		axlSetFindFilter(?enabled '("NOALL" "SYMBOLS") ?onButtons '("ALLTYPES"))
+		axlAddSelectAll()
+		SymbolID = axlGetSelSet()
+		axlClearSelSet()
+		tt = '()
+		sybxylist = '()
+		foreach(n1 SymbolID
+			AutoText_Move(n1 list(0 0))
+			ExtentbBox = axlDBGetExtents(n1 t)
+			ExtentbBox1 = append(car(ExtentbBox) cadr(ExtentbBox))
+			path = axlPathStart(list(car(ExtentbBox)))
+			axlPathLine(path 0.0 list(nth(2 ExtentbBox1) nth(1 ExtentbBox1)))
+			axlPathLine(path 0.0 cadr(ExtentbBox))
+			axlPathLine(path 0.0 list(nth(0 ExtentbBox1) nth(3 ExtentbBox1)))
+			axlPathLine(path 0.0 car(ExtentbBox))
+			tt0 = car(axlPolyFromDB(caar(axlDBCreatePath(path))))
+			tt = append1(tt tt0)
+			refid = nil
+			foreach(n2 axlDBGetAttachedText(n1)
+				when(rexMatchp("^REF DES/SILKSCREEN_+" n2->layer) && !refid
+					refid = n2
+				)
+			)
+			when(member(n1->rotation list(0 90 180 270)) && refid
+				detaTx = (strlen(n1->refdes)*(axlGetParam("paramTextBlock:1")->width + axlGetParam("paramTextBlock:1")->charSpace))/2
+				detaTy = (axlGetParam("paramTextBlock:1")->height/2+axlGetParam("paramTextBlock:1")->photoWidth)
+				
+				detaxf = -car(n1->xy)+caar(ExtentbBox)-detaTx
+				detaxz = -car(n1->xy)+caadr(ExtentbBox)+detaTx
+				detayf = -cadr(n1->xy)+cadar(ExtentbBox)-detaTy
+				detayz = -cadr(n1->xy)+cadar(reverse(ExtentbBox))+detaTy
+				sprintf(Ctt0 "%.2f" cos(n1->rotation*3.14/180))
+				Ctt0 = atof(Ctt0)
+				when(Ctt0 == 0
+					detaxf = -car(n1->xy)+caar(ExtentbBox)-detaTy
+					detaxz = -car(n1->xy)+caadr(ExtentbBox)+detaTy
+					detayf = -cadr(n1->xy)+cadar(ExtentbBox)-detaTx
+					detayz = -cadr(n1->xy)+cadar(reverse(ExtentbBox))+detaTx
+				)
+				sybxylist = append1(sybxylist list(n1 refid tt0 list(list(detaxf 0) list(0 detayf) list(detaxz 0) list(0 detayz))))
+			)
+		)
+		
+		for(i 0 3
+			foreach(n1 sybxylist
+				AutoText_Move(car(n1) nth(i car(reverse(n1))))
+			)
+			when(cadar(sybxylist)->layer
+				axlVisibleDesign(nil)
+				axlVisibleLayer(cadar(sybxylist)->layer t)
+				axlSetFindFilter(?enabled '("NOALL" "TEXT") ?onButtons '("ALLTYPES"))
+				axlAddSelectAll()
+				axlDetailSave("temp.plt" axlExtentDB() axlGetSelSet())
+				axlClearSelSet()
+				axlSetActiveLayer("BOARD GEOMETRY/DIMENSION")
+				axlDetailLoad("temp.plt" car(axlExtentDB()) 1.0 0 nil)
+				deleteFile("temp.plt")
+			)
+			axlVisibleDesign(nil)
+			axlVisibleLayer("BOARD GEOMETRY/DIMENSION" t)
+			axlSetFindFilter(?enabled '("NOALL" "LINESEGS") ?onButtons '("ALLTYPES"))
+			
+			L_Seg = '()
+			foreach(n1 sybxylist
+				when(cadr(n1)->bBox
+					axlSingleSelectBox(cadr(n1)->bBox)
+					L_Seg = append1(L_Seg append1(n1 length(axlGetSelSet())))
+					axlClearSelSet()
+				)
+			)
+			;println(car(tt)->??)
+			foreach(n1 tt
+				when(n1->bBox
+					axlSingleSelectBox(n1->bBox)
+					axlDeleteObject(axlGetSelSet())
+					axlDBRefreshId(nil)
+					axlClearSelSet()
+				)
+			)
+			Polylist = '()
+			foreach(n1 L_Seg
+				when(cadr(n1)->bBox
+					axlSingleSelectBox(cadr(n1)->bBox)
+					when(car(reverse(n1)) == length(axlGetSelSet())
+						sybxylist = remd(remd(car(reverse(n1)) n1) sybxylist)
+						foreach(n2 axlGetSelSet()
+							Polylist = append(Polylist axlPolyFromDB(n2 ?endCapType "ROUND"))
+						)
+					)
+					axlClearSelSet()
+				)
+			)
+			Polylist = axlPolyOperation(car(Polylist) cdr(Polylist) 'OR)
+			tt = append(Polylist tt)
+			axlAddSelectAll()
+			axlDeleteObject(axlGetSelSet())
+			axlDBRefreshId(nil)
+			axlClearSelSet()
+		)
+		foreach(n1 sybxylist
+			AutoText_Move(car(n1) list(0 0))
+		)
+		axlDBRefreshId(nil)
+	)
+	axlClearSelSet()
+	StdOut
+)
+)
+
+;----------Text参数初始化----------------
+procedure( AutoText_Int()
+let(()
+	while((axlGetParam("paramTextBlock:1")->width && axlGetParam("paramTextBlock:2")->width) == nil	
+		Scr_Port = outfile("./scr_file.scr")
+		fprintf( Scr_Port "version 16.3\n")
+		fprintf( Scr_Port "prmed\n")
+		fprintf( Scr_Port "FORM prmedit text \n")
+		fprintf( Scr_Port "FORM prmedit text_setup_button\n" )
+		fprintf( Scr_Port "FORM textblock add  \n" )
+		fprintf( Scr_Port "FORM textblock done \n" )
+		fprintf( Scr_Port "FORM prmedit done  \n")
+		close( Scr_Port )
+		axlShell( "replay ./scr_file.scr" )
+		deleteFile( "./scr_file.scr" )		
+	)
+	TextBlock1 = axlGetParam("paramTextBlock:1")
+	TextBlock2 = axlGetParam("paramTextBlock:2")
+	TextBlock1->height = 32
+	TextBlock1->width = 19.2
+	TextBlock1->photoWidth = 6
+	TextBlock1->charSpace = 6
+	TextBlock1->lineSpace = 0
+	
+	TextBlock2->height = 15.75
+	TextBlock2->width = 11.81
+	TextBlock2->photoWidth = 0
+	TextBlock2->charSpace = 0
+	TextBlock2->lineSpace = 0
+	axlSetParam(TextBlock1)
+	axlSetParam(TextBlock2)
+	t
+)
+)
+
+;----------字符移动----------------
+procedure( AutoText_Move(o_SymID xy)
+let((myorient textlist deta_Dis Hxy Movexy)
+	textlist = list(
+	"REF DES/ASSEMBLY_TOP" "REF DES/ASSEMBLY_BOTTOM" 
+	"REF DES/SILKSCREEN_TOP" "REF DES/SILKSCREEN_BOTTOM"
+	"COMPONENT VALUE/ASSEMBLY_TOP" "COMPONENT VALUE/ASSEMBLY_BOTTOM" 
+	"COMPONENT VALUE/SILKSCREEN_TOP" "COMPONENT VALUE/SILKSCREEN_BOTTOM" 
+	)
+	foreach(n0 o_SymID->children
+		when(member(n0->layer textlist)
+			myorient = axlTextOrientationCopy(n0)
+			myorient->justify = "center"
+			if(rexMatchp("^REF DES/SILKSCREEN_+" n0->layer) then
+				myorient->textBlock = "1"
+				deta_Dis = xy
+			else
+				myorient->textBlock = "2"
+				deta_Dis = list(0 0)
+			)
+			myorient->mirrored = o_SymID->isMirrored
+			axlDBChangeText(n0 nil myorient)
+			TextH = (axlGetParam(strcat("paramTextBlock:" n0->textBlock))->height)/2
+			sprintf(Stt0 "%.2f" sin(o_SymID->rotation*3.14/180))
+			Stt0 = atof(Stt0)
+			sprintf(Ctt0 "%.2f" cos(o_SymID->rotation*3.14/180))
+			Ctt0 = atof(Ctt0)
+			when(Ctt0 >= 0 && Stt0 != -1
+				Hxy = list(-TextH*Stt0 TextH*Ctt0)
+				axlTransformObject(n0 ?move axlMXYSub(o_SymID->xy axlMXYAdd(Hxy n0->xy)) ?angle o_SymID->rotation-n0->rotation)
+			)
+			when(Ctt0 <= 0 && Stt0 != 1
+				Hxy = list(TextH*Stt0 -TextH*Ctt0)
+				axlTransformObject(n0 ?move axlMXYSub(o_SymID->xy axlMXYAdd(Hxy n0->xy)) ?angle o_SymID->rotation-n0->rotation+180)
+			)
+			
+			when((Ctt0 == 1) || (Ctt0 == -1) || (Stt0 == 1) || (Stt0 == -1)
+				axlTransformObject(n0 ?move deta_Dis)
+			)
+			
+		)
+	)
+	t
+)
+)
+
+
+
+
+defun(Test_GTVersion ()
+let(()
+	println("V1.0_2018_7_30_0.1")
+	t
+)
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+;------------------------------------------------------------
+;中文编码 转码
+defun(Test_ChangeEn2CH ()
+let(()
+
+	axlUIPrompt("Code:",sprintf(nil,"%L",axlUIPrompt("PleaseInputChinese:")))
+	t
+
+)
+)
+
+

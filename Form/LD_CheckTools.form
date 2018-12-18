@@ -1,0 +1,208 @@
+FILE_TYPE=FORM_DEFN VERSION=2
+FORM
+FIXED
+PORT 86 58
+HEADER "Check Tools - V0.01"
+
+
+TILE
+
+TABSET "Tab1"
+OPTIONS tabsetDispatch
+FLOC 1 1
+FSIZE 82 54
+
+TAB "CheckList检查" "TabSheet0"
+
+GROUP "检查项" "Group4"
+GLOC 2 1
+FSIZE 25 37
+ENDGROUP
+
+GROUP "问题列表" "Group5"
+GLOC 30 1
+FSIZE 49 26
+ENDGROUP
+
+
+
+
+FIELD ErrorList0
+FLOC 31 3
+LIST "" 47 12
+OPTIONS multiselect
+ENDFIELD
+
+
+
+
+FIELD MenuCheck0
+FLOC 50 30
+MENUBUTTON "检查" 13 5
+ENDFIELD 
+
+#FIELD FindNextMenu
+#FLOC 65 30
+#MENUBUTTON "查找下一个" 12 4
+#ENDFIELD 
+
+
+FIELD TreeeView0
+FLOC 3 3
+TREEVIEW 23 17
+FGROUP "Group4"
+ENDFIELD
+
+
+GROUP "说明" "Group1"
+GLOC 2 40
+FSIZE 78 10
+ENDGROUP
+
+TEXT "																																																								" "Label4"
+FLOC 5 44
+FGROUP "Group1"
+FSIZE 74 6
+ENDFIELD 
+
+
+ENDTAB
+
+TAB "浮空引脚检查" "TabSheet1"
+
+GROUP	"问题列表" "Group5"
+GLOC 1 6
+FSIZE	30 26
+ENDGROUP
+
+FIELD	ErrorList1
+FLOC 2 8
+LIST ""	28 12
+OPTIONS	multiselect
+FGROUP "Group5"
+ENDFIELD
+
+
+FIELD	MenuCheck1
+FLOC 18	33
+MENUBUTTON "检查"	12 4
+FGROUP "Group5"
+ENDFIELD
+
+GROUP "说明" "Group3"
+GLOC 2 40
+FSIZE 78 10
+ENDGROUP
+
+TEXT "检查浮空引脚。" "Label6"
+FLOC 5 44
+FGROUP "Group3"
+ENDFIELD 
+
+ENDTAB
+
+
+TAB	"测试点位置对比" "TabSheet2"
+
+GROUP	"问题列表" "Group5"
+GLOC 1 6
+FSIZE	30 26
+ENDGROUP
+
+
+TEXT "Placement File:"
+FLOC 2 1
+ENDTEXT 
+
+
+FIELD Input1
+FLOC 2 3
+FSIZE 19 2
+STRFILLIN 22 150
+VALUE "*.txt"
+ENDFIELD
+
+FIELD	FileButton
+FLOC 26	3
+MENUBUTTON "..."	4 3
+FGROUP "Group5"
+ENDFIELD
+
+FIELD	ErrorList2
+FLOC 2 8
+LIST ""	28 12
+OPTIONS	multiselect
+FGROUP "Group5"
+ENDFIELD
+
+FIELD	MenuCheck2
+FLOC 18	33
+MENUBUTTON "检查"	12 4
+FGROUP "Group5"
+ENDFIELD
+
+ENDTAB
+
+
+TAB	"Valor检查" "TabSheet3"
+
+GROUP	"问题列表" "Group6"
+GLOC 1 6
+FSIZE	60 26
+ENDGROUP
+
+
+TEXT "Placement File:"
+FLOC 2 1
+ENDTEXT 
+
+
+FIELD Input2
+FLOC 2 3
+FSIZE 19 2
+STRFILLIN 22 150
+VALUE "*.html"
+ENDFIELD
+
+FIELD	FileButton1
+FLOC 26	3
+MENUBUTTON "..."	4 3
+FGROUP "Group6"
+ENDFIELD
+
+FIELD	ErrorList3
+FLOC 2 8
+LIST ""	56 12
+OPTIONS	multiselect
+FGROUP "Group6"
+ENDFIELD
+
+FIELD	MenuCheck3
+FLOC 18	33
+MENUBUTTON "检查"	12 4
+FGROUP "Group6"
+ENDFIELD
+
+ENDTAB
+
+ENDTABSET
+
+FIELD Done
+FLOC 2 56
+MENUBUTTON "确定" 12 3
+ENDFIELD 
+
+FIELD Cancel
+FLOC 18 56
+MENUBUTTON "取消" 12 3
+ENDFIELD 
+
+FIELD Apply
+FLOC 65 56
+MENUBUTTON "应用" 12 3
+ENDFIELD 
+
+
+
+ENDTILE
+ENDFORM

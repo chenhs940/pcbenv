@@ -1,0 +1,11 @@
+;loadi(strcat(axlOSSlash(getShellEnvVar("HOME")) "/pcbenv/test.il") "chenhs");
+;loadi(strcat(axlOSSlash(getShellEnvVar("HOME")) "/pcbenv/1.test=test=test.il") "chenhs");
+loadi(strcat(axlOSSlash(getShellEnvVar("HOME")) "/pcbenv/auto_text_20161025.il") "chenhs");
+;loadi(strcat(axlOSSlash(getShellEnvVar("HOME")) "/pcbenv/LD_Skill_Load.il") "chenhs");
+loadi(strcat(axlOSSlash(getShellEnvVar("HOME")) "/pcbenv/test2.il") "chenhs");
+axlSetAlias( "~Q" "skill MyStart")
+axlSetAlias( "~W" "skill WriteFile")
+axlSetAlias( "~T" "skill MyTest")
+axlSetAlias( "~A" "skill loadiii")
+ 
+;load("C:\\Program Files\\GyroTech\\x64\\Script\\GTAllegro" "GTAllegro")

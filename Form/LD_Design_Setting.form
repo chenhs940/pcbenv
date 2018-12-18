@@ -1,0 +1,158 @@
+FILE_TYPE=FORM_DEFN VERSION=2
+FORM AUTOGREYTEXT
+FIXED
+PORT 56 41
+HEADER "Design Setting - V1.0"
+
+POPUP <Combo1>"5mil""0","6mil""1","8mil""2"
+POPUP <Combo2>"5mil""0","6mil""1","8mil""2"
+POPUP <Combo3>"单面板""0","双面板""1","普通四面板""2","普通六面板""3","普通八面板""4","HDI 1+2+1""5","HDI 1+4+1""6","HDI 1+6+1""7","\266\376\275\327HDI""8","FPC单面板""9","FPC双面板""10","FPC三面板""11" 
+POPUP <Combo4>"1.0mm""0","1.2mm""1","1.6mm(Default)""2","2.0mm""3"
+POPUP <Combo5>"1.0mm""0","1.2mm""1","1.6mm(Default)""2","2.0mm""3"
+
+TILE
+
+TABSET "Tab1"
+OPTIONS tabsetDispatch
+FLOC 1 1
+FSIZE 55 36
+
+TAB "设置" "TabSheet1"
+
+GROUP "基础设置" "Group1"
+GLOC 2 1
+FSIZE 50 16
+ENDGROUP
+
+TEXT "线宽" "Label1"
+FLOC 7 4
+FGROUP "Group1"
+ENDFIELD 
+
+TEXT "线距" "Label2"
+FLOC 29 4
+FGROUP "Group1"
+ENDFIELD 
+
+TEXT "层数" "Label3"
+FLOC 7 7
+FGROUP "Group1"
+ENDFIELD 
+
+TEXT "板厚" "Label4"
+FLOC 29 7
+FGROUP "Group1"
+ENDFIELD 
+
+FIELD Combo1
+FLOC 13 4
+STRFILLIN 9 25
+FGROUP "Group1"
+POP "Combo1"
+OPTIONS multiselect prettyprint
+ENDFIELD 
+
+
+FIELD Combo2
+FLOC 34 4
+STRFILLIN 9 25
+FGROUP "Group1"
+POP "Combo2"
+OPTIONS multiselect prettyprint
+ENDFIELD 
+
+FIELD Combo3
+FLOC 13 7
+STRFILLIN 9 25
+FGROUP "Group1"
+POP "Combo3"
+OPTIONS multiselect prettyprint
+ENDFIELD 
+
+
+FIELD Combo4
+FLOC 34 7
+STRFILLIN 9 25
+FGROUP "Group1"
+POP "Combo4"
+OPTIONS multiselect prettyprint
+ENDFIELD 
+
+TEXT "PCB名称" "Label5"
+FLOC 6 11
+FGROUP "Group1"
+ENDFIELD 
+
+FIELD PCB_Name
+FLOC 14 11
+STRFILLIN 32 250
+FGROUP "Group1"
+VALUE "输入PCB名称"
+ENDFIELD 
+
+TEXT "PCB时间" "Label6"
+FLOC 6 13
+FGROUP "Group1"
+ENDFIELD 
+
+FIELD Input2
+FLOC 14 13
+STRFILLIN 32 250
+FGROUP "Group1"
+VALUE "PCB丝印时间"
+ENDFIELD 
+
+
+ENDTAB
+
+TAB "信号设置" "TabSheet2"
+
+GROUP "信号要求" "Group2"
+GLOC 2 1
+FSIZE 50 30
+ENDGROUP
+
+GRID GridNet
+FLOC 3 7
+FSIZE 47 16
+OPTIONS HLINES VLINES USERSIZE
+POP "Combo5"
+GHEAD TOP
+HEADSIZE 3
+OPTIONS 3D MULTI
+POP "Combo5" 
+ENDGHEAD
+GHEAD SIDE
+OPTIONS 3D NUMBER
+HEADSIZE 4
+POP "Combo5"
+ENDGHEAD
+ENDGRID
+
+
+FIELD Net_Select
+FLOC 7 4
+MENUBUTTON "Net 选择" 9 3
+ENDFIELD 
+
+ENDTAB
+
+ENDTABSET
+
+FIELD Done
+FLOC 2 38
+MENUBUTTON "确定" 12 3
+ENDFIELD 
+
+FIELD Cancel
+FLOC 22 38
+MENUBUTTON "取消" 12 3
+ENDFIELD 
+
+FIELD Apply
+FLOC 41 38
+MENUBUTTON "应用" 13 3
+ENDFIELD 
+
+ENDTILE
+ENDFORM

@@ -1,0 +1,567 @@
+\t (00:00:02) allegro 16.3 S049 (v16-3-85DA) i86
+\t (00:00:02) 
+
+\t (00:00:04) Opening existing drawing...
+\d (00:00:04) Database opened: F:/SPB_Data/pcbenv/brd/ESP20_C_V110.brd
+\i (00:00:04) trapsize 2377
+\i (00:00:04) trapsize 2158
+\i (00:00:04) trapsize 2026
+\i (00:00:04) trapsize 1589
+\i (00:00:04) trapsize 28020
+\i (00:00:05) generaledit 
+\i (00:00:06) skill loadiii 
+\i (00:00:06) generaledit 
+   (00:00:06) function loadiii redefined
+   (00:00:06) function MyStart redefined
+   (00:00:06) function Get_Total_Dist redefined
+   (00:00:06) function Get_Air_Out redefined
+   (00:00:06) function chs_Callback redefined
+   (00:00:06) function dataH redefined
+   (00:00:06) function simErr redefined
+   (00:00:06) function simTerm redefined
+   (00:00:06) t
+\i (00:00:06) skill MyStart 
+   (00:00:06) t
+\i (00:00:07) setwindow form.measure
+\i (00:00:07) FORM measure aquit  
+   (00:00:07) 1
+   (00:00:07) *Error* ipcWriteChild: Cannot write to uninitialised process
+   (00:00:09) cid: ipc:0  Msg: Executing (let () (println "Hello world ") (1 + 1))
+   (00:00:09) cid: ipc:0  Msg: Result = (let () (println "Hello world ") (1 + 1))
+   (00:00:09) Simulator expired with exit status = ipc:0  0
+\i (00:16:51) setwindow pcb
+\i (00:16:51) skill loadiii 
+\i (00:16:51) generaledit 
+   (00:16:51) function loadiii redefined
+   (00:16:51) function MyStart redefined
+   (00:16:51) function Get_Total_Dist redefined
+   (00:16:51) function Get_Air_Out redefined
+   (00:16:51) function chs_Callback redefined
+   (00:16:51) function dataH redefined
+   (00:16:51) function simErr redefined
+   (00:16:51) function simTerm redefined
+   (00:16:51) function textprocess redefined
+   (00:16:51) function text_auto_Callback redefined
+   (00:16:51) function text_auto_from redefined
+   (00:16:51) t
+\i (00:16:51) skill MyStart 
+   (00:16:51) t
+\i (00:16:52) setwindow form.measure
+\i (00:16:52) FORM measure aquit  
+   (00:16:53) 1
+   (00:16:54) cid: ipc:0  Msg: Executing (let () (println "Hello world ") (1 + 1))
+   (00:16:54) cid: ipc:0  Msg: Result = (let () (println "Hello world ") (1 + 1))
+   (00:16:54) Simulator expired with exit status = ipc:0  0
+\i (01:14:04) setwindow pcb
+\i (01:14:04) skill loadiii 
+\i (01:14:04) generaledit 
+   (01:14:04) function loadiii redefined
+   (01:14:04) function MyStart redefined
+   (01:14:04) function Get_Total_Dist redefined
+   (01:14:04) function Get_Air_Out redefined
+   (01:14:04) function chs_Callback redefined
+   (01:14:04) function dataH redefined
+   (01:14:04) function simErr redefined
+   (01:14:04) function simTerm redefined
+   (01:14:04) function textprocess redefined
+   (01:14:04) function text_auto_Callback redefined
+   (01:14:04) function text_auto_from redefined
+   (01:14:04) t
+\i (01:14:04) skill MyStart 
+   (01:14:04) t
+\i (01:14:06) setwindow form.measure
+\i (01:14:06) FORM measure aquit  
+   (01:14:07) 1
+   (01:14:09) cid: ipc:0  Msg: Executing (let () (println "Hello world ") (1 + 1))
+   (01:14:09) cid: ipc:0  Msg: Result = 
+\i (01:14:39) setwindow pcb
+\i (01:14:39) skill loadiii 
+\i (01:14:39) generaledit 
+   (01:14:39) function loadiii redefined
+   (01:14:39) function MyStart redefined
+   (01:14:39) function Get_Total_Dist redefined
+   (01:14:39) function Get_Air_Out redefined
+   (01:14:39) function chs_Callback redefined
+   (01:14:39) function dataH redefined
+   (01:14:39) function simErr redefined
+   (01:14:39) function simTerm redefined
+   (01:14:39) function textprocess redefined
+   (01:14:39) function text_auto_Callback redefined
+   (01:14:39) function text_auto_from redefined
+   (01:14:39) t
+\i (01:14:40) skill MyStart 
+   (01:14:40) t
+\i (01:14:41) setwindow form.measure
+\i (01:14:41) FORM measure aquit  
+   (01:14:42) 1
+   (01:14:45) cid: ipc:1  Msg: Executing (let () (println "Hello world ") (1 + 1))Result = 
+\i (01:32:20) setwindow pcb
+\i (01:32:20) skill loadiii 
+\i (01:32:20) generaledit 
+   (01:32:20) Simulator expired with exit status = ipc:0  0
+   (01:32:20) Simulator expired with exit status = ipc:1  0
+   (01:32:20) function loadiii redefined
+   (01:32:20) function MyStart redefined
+   (01:32:20) function Get_Total_Dist redefined
+   (01:32:20) function Get_Air_Out redefined
+   (01:32:20) function chs_Callback redefined
+   (01:32:20) function dataH redefined
+   (01:32:20) function simErr redefined
+   (01:32:20) function simTerm redefined
+   (01:32:20) function textprocess redefined
+   (01:32:20) function text_auto_Callback redefined
+   (01:32:20) function text_auto_from redefined
+   (01:32:20) t
+\i (01:32:20) skill MyStart 
+   (01:32:20) t
+\i (01:32:22) setwindow form.measure
+\i (01:32:22) FORM measure aquit  
+   (01:32:23) 1
+   (01:32:27) cid: ipc:0  Msg: Executing (let () (println "Hello world ") (1 + 1))Result = (l
+   (01:32:27) Simulator expired with exit status = ipc:0  0
+\i (01:38:36) setwindow pcb
+\i (01:38:36) skill loadiii 
+\i (01:38:36) generaledit 
+   (01:38:36) function loadiii redefined
+   (01:38:36) function MyStart redefined
+   (01:38:36) function Get_Total_Dist redefined
+   (01:38:36) function Get_Air_Out redefined
+   (01:38:36) function chs_Callback redefined
+   (01:38:36) function dataH redefined
+   (01:38:36) function simErr redefined
+   (01:38:36) function simTerm redefined
+   (01:38:36) function textprocess redefined
+   (01:38:36) function text_auto_Callback redefined
+   (01:38:36) function text_auto_from redefined
+   (01:38:36) t
+\i (01:38:36) skill MyStart 
+   (01:38:36) t
+\i (01:38:37) setwindow form.measure
+\i (01:38:37) FORM measure aquit  
+   (01:38:37) 1
+   (01:38:37) *Error* eval: undefined function - ipcskillProcess
+\i (01:39:02) setwindow pcb
+\i (01:39:02) skill loadiii 
+\i (01:39:02) generaledit 
+   (01:39:02) function loadiii redefined
+   (01:39:02) function MyStart redefined
+   (01:39:02) function Get_Total_Dist redefined
+   (01:39:02) function Get_Air_Out redefined
+   (01:39:02) function chs_Callback redefined
+   (01:39:02) function dataH redefined
+   (01:39:02) function simErr redefined
+   (01:39:02) function simTerm redefined
+   (01:39:02) function textprocess redefined
+   (01:39:02) function text_auto_Callback redefined
+   (01:39:02) function text_auto_from redefined
+   (01:39:02) t
+\i (01:39:02) skill MyStart 
+   (01:39:02) t
+\i (01:39:03) setwindow form.measure
+\i (01:39:03) FORM measure aquit  
+   (01:39:04) 1
+   (01:39:14) cid: ipc:0  Msg: Executing (let () (println "Hello world ") (1 + 1))Result = (l
+   (01:39:14) Simulator expired with exit status = ipc:0  0
+\i (01:39:45) setwindow pcb
+\i (01:39:45) skill loadiii 
+\i (01:39:45) generaledit 
+   (01:39:45) function loadiii redefined
+   (01:39:45) function MyStart redefined
+   (01:39:45) function Get_Total_Dist redefined
+   (01:39:45) function Get_Air_Out redefined
+   (01:39:45) function chs_Callback redefined
+   (01:39:45) function dataH redefined
+   (01:39:45) function simErr redefined
+   (01:39:45) function simTerm redefined
+   (01:39:45) function textprocess redefined
+   (01:39:45) function text_auto_Callback redefined
+   (01:39:45) function text_auto_from redefined
+   (01:39:45) t
+\i (01:39:45) skill MyStart 
+   (01:39:45) t
+\i (01:39:46) setwindow form.measure
+\i (01:39:46) FORM measure aquit  
+   (01:39:47) 1
+   (01:39:50) cid: ipc:0  Msg: Executing (let () (println "Hello world ") (1 + 1))Result = (l
+   (01:39:50) Simulator expired with exit status = ipc:0  0
+\i (01:42:45) setwindow pcb
+\i (01:42:45) skill loadiii 
+\i (01:42:45) generaledit 
+   (01:42:46) function loadiii redefined
+   (01:42:46) function MyStart redefined
+   (01:42:46) function Get_Total_Dist redefined
+   (01:42:46) function Get_Air_Out redefined
+   (01:42:46) function chs_Callback redefined
+   (01:42:46) function dataH redefined
+   (01:42:46) function simErr redefined
+   (01:42:46) function simTerm redefined
+   (01:42:46) function textprocess redefined
+   (01:42:46) function text_auto_Callback redefined
+   (01:42:46) function text_auto_from redefined
+   (01:42:46) t
+\i (01:42:46) skill MyStart 
+   (01:42:46) t
+\i (01:42:47) setwindow form.measure
+\i (01:42:47) FORM measure aquit  
+   (01:42:48) 1
+   (01:42:50) cid: ipc:0  Msg: Executing (let () (println "Hello world ") (1 + 1))Result = (l
+   (01:42:50) Simulator expired with exit status = ipc:0  0
+\i (01:43:20) setwindow pcb
+\i (01:43:20) skill loadiii 
+\i (01:43:20) generaledit 
+   (01:43:20) function loadiii redefined
+   (01:43:20) function MyStart redefined
+   (01:43:20) function Get_Total_Dist redefined
+   (01:43:20) function Get_Air_Out redefined
+   (01:43:20) function chs_Callback redefined
+   (01:43:20) function dataH redefined
+   (01:43:20) function simErr redefined
+   (01:43:20) function simTerm redefined
+   (01:43:20) function textprocess redefined
+   (01:43:20) function text_auto_Callback redefined
+   (01:43:20) function text_auto_from redefined
+   (01:43:20) t
+\i (01:43:20) skill MyStart 
+   (01:43:20) t
+\i (01:43:21) setwindow form.measure
+\i (01:43:21) FORM measure aquit  
+   (01:43:22) 1
+   (01:43:22) ::
+   (01:43:25) cid: ipc:0  Msg: Executing (let () (println "Hello world ") (1 + 1))Result = (l
+   (01:43:25) Simulator expired with exit status = ipc:0  0
+\i (01:43:47) setwindow pcb
+\i (01:43:47) skill loadiii 
+\i (01:43:47) generaledit 
+   (01:43:47) function loadiii redefined
+   (01:43:47) function MyStart redefined
+   (01:43:47) function Get_Total_Dist redefined
+   (01:43:47) function Get_Air_Out redefined
+   (01:43:47) function chs_Callback redefined
+   (01:43:47) function dataH redefined
+   (01:43:47) function simErr redefined
+   (01:43:47) function simTerm redefined
+   (01:43:47) function textprocess redefined
+   (01:43:47) function text_auto_Callback redefined
+   (01:43:47) function text_auto_from redefined
+   (01:43:47) t
+\i (01:43:47) skill MyStart 
+   (01:43:47) t
+\i (01:43:49) setwindow form.measure
+\i (01:43:49) FORM measure aquit  
+   (01:43:50) 1
+   (01:43:50) ::
+   (01:43:52) cid: ipc:0  Msg: Executing (let () (println "Hello world ") (1 + 1))Result = (l
+   (01:43:52) Simulator expired with exit status = ipc:0  0
+\i (01:54:52) setwindow pcb
+\i (01:54:52) skill loadiii 
+\i (01:54:52) generaledit 
+   (01:54:52) function loadiii redefined
+   (01:54:52) function MyStart redefined
+   (01:54:52) function Get_Total_Dist redefined
+   (01:54:52) function Get_Air_Out redefined
+   (01:54:52) function chs_Callback redefined
+   (01:54:52) function dataH redefined
+   (01:54:52) function simErr redefined
+   (01:54:52) function simTerm redefined
+   (01:54:52) function textprocess redefined
+   (01:54:52) function text_auto_Callback redefined
+   (01:54:52) function text_auto_from redefined
+   (01:54:52) t
+\i (01:54:52) skill MyStart 
+   (01:54:52) t
+\i (01:54:53) setwindow form.measure
+\i (01:54:53) FORM measure aquit  
+   (01:54:54) 1
+   (01:54:54) ::
+\i (01:55:04) FORM measure aquit  
+   (01:55:05) cid: ipc:0  Msg: Executing (let () (println "Hello world ") (1 + 1))Result = (l
+   (01:55:05) Simulator expired with exit status = ipc:0  0
+   (01:55:05) 1
+   (01:55:05) ::
+   (01:55:08) cid: ipc:0  Msg: Executing (let () (println "Hello world ") (1 + 1))Result = (l
+   (01:55:08) Simulator expired with exit status = ipc:0  0
+\i (01:55:49) setwindow pcb
+\i (01:55:49) skill loadiii 
+\i (01:55:49) generaledit 
+   (01:55:49) function loadiii redefined
+   (01:55:49) function MyStart redefined
+   (01:55:49) function Get_Total_Dist redefined
+   (01:55:49) function Get_Air_Out redefined
+   (01:55:49) function chs_Callback redefined
+   (01:55:49) function dataH redefined
+   (01:55:49) function simErr redefined
+   (01:55:49) function simTerm redefined
+   (01:55:49) function textprocess redefined
+   (01:55:49) function text_auto_Callback redefined
+   (01:55:49) function text_auto_from redefined
+   (01:55:49) t
+\i (01:55:49) skill MyStart 
+   (01:55:49) t
+\i (01:55:50) setwindow form.measure
+\i (01:55:50) FORM measure aquit  
+   (01:55:51) 1
+   (01:55:51) ::
+\i (01:56:24) setwindow pcb
+\i (01:56:24) skill loadiii 
+\i (01:56:24) generaledit 
+   (01:56:24) Simulator expired with exit status = ipc:0  0
+   (01:56:24) function loadiii redefined
+   (01:56:24) function MyStart redefined
+   (01:56:24) function Get_Total_Dist redefined
+   (01:56:24) function Get_Air_Out redefined
+   (01:56:24) function chs_Callback redefined
+   (01:56:24) function dataH redefined
+   (01:56:24) function simErr redefined
+   (01:56:24) function simTerm redefined
+   (01:56:24) function textprocess redefined
+   (01:56:24) function text_auto_Callback redefined
+   (01:56:24) function text_auto_from redefined
+   (01:56:24) t
+\i (01:56:24) skill MyStart 
+   (01:56:24) t
+\i (01:56:26) setwindow form.measure
+\i (01:56:26) FORM measure aquit  
+   (01:56:26) 1
+   (01:56:26) ::
+\i (01:56:54) setwindow pcb
+\i (01:56:54) skill loadiii 
+\i (01:56:54) generaledit 
+   (01:56:54) function loadiii redefined
+   (01:56:54) function MyStart redefined
+   (01:56:54) function Get_Total_Dist redefined
+   (01:56:54) function Get_Air_Out redefined
+   (01:56:54) function chs_Callback redefined
+   (01:56:54) function dataH redefined
+   (01:56:54) function simErr redefined
+   (01:56:54) function simTerm redefined
+   (01:56:54) function textprocess redefined
+   (01:56:54) function text_auto_Callback redefined
+   (01:56:54) function text_auto_from redefined
+   (01:56:54) t
+\i (01:56:54) skill MyStart 
+   (01:56:54) t
+\i (01:56:56) setwindow form.measure
+\i (01:56:56) FORM measure aquit  
+   (01:56:57) 1
+   (01:56:57) ::
+\i (01:57:09) setwindow pcb
+\i (01:57:09) skill loadiii 
+\i (01:57:09) generaledit 
+   (01:57:09) function loadiii redefined
+   (01:57:09) function MyStart redefined
+   (01:57:09) function Get_Total_Dist redefined
+   (01:57:09) function Get_Air_Out redefined
+   (01:57:09) function chs_Callback redefined
+   (01:57:09) function dataH redefined
+   (01:57:09) function simErr redefined
+   (01:57:09) function simTerm redefined
+   (01:57:09) function textprocess redefined
+   (01:57:09) function text_auto_Callback redefined
+   (01:57:09) function text_auto_from redefined
+   (01:57:09) t
+\i (01:57:09) skill MyStart 
+   (01:57:09) t
+\i (01:57:10) setwindow form.measure
+\i (01:57:10) FORM measure aquit  
+   (01:57:11) 1
+   (01:57:11) ::
+   (01:57:12) cid: ipc:2  Msg: Executing (let () (println "Hello world ") (1 + 1))Result = (
+   (01:57:12) Simulator expired with exit status = ipc:2  0
+\i (02:34:37) setwindow pcb
+\i (02:34:37) skill loadiii 
+\i (02:34:37) generaledit 
+   (02:34:37) function loadiii redefined
+   (02:34:37) function MyStart redefined
+   (02:34:37) function Get_Total_Dist redefined
+   (02:34:37) function Get_Air_Out redefined
+   (02:34:37) function chs_Callback redefined
+   (02:34:37) function dataH redefined
+   (02:34:37) function simErr redefined
+   (02:34:37) function simTerm redefined
+   (02:34:37) function textprocess redefined
+   (02:34:37) function text_auto_Callback redefined
+   (02:34:37) function text_auto_from redefined
+   (02:34:37) t
+   (02:34:52) *WARNING* (print): *** GC'ed or corrupted ipcUT object at address 0xe362144
+\i (02:35:04) skill loadiii 
+\i (02:35:04) generaledit 
+   (02:35:04) Simulator expired with exit status = ipc:1  0
+   (02:35:04) Simulator expired with exit status =   0
+   (02:35:04) function loadiii redefined
+   (02:35:04) function MyStart redefined
+   (02:35:04) function Get_Total_Dist redefined
+   (02:35:04) function Get_Air_Out redefined
+   (02:35:04) function chs_Callback redefined
+   (02:35:04) function dataH redefined
+   (02:35:04) function simErr redefined
+   (02:35:04) function simTerm redefined
+   (02:35:04) function textprocess redefined
+   (02:35:04) function text_auto_Callback redefined
+   (02:35:04) function text_auto_from redefined
+   (02:35:04) t
+\i (02:35:05) skill MyStart 
+   (02:35:05) t
+\i (02:35:06) setwindow form.measure
+\i (02:35:06) FORM measure aquit  
+   (02:35:07) 1
+   (02:35:07) ::
+   (02:35:09) cid: ipc:0  Msg: Executing (let () (println "Hello world ") (1 + 1))Result = (let () (println "Hello world ") (1 + 1))
+   (02:35:09) Simulator expired with exit status = ipc:0  0
+\i (02:36:20) setwindow pcb
+\i (02:36:20) skill loadiii 
+\i (02:36:20) generaledit 
+   (02:36:20) function loadiii redefined
+   (02:36:20) function MyStart redefined
+   (02:36:20) function Get_Total_Dist redefined
+   (02:36:20) function Get_Air_Out redefined
+   (02:36:20) function chs_Callback redefined
+   (02:36:20) function dataH redefined
+   (02:36:20) function simErr redefined
+   (02:36:20) function simTerm redefined
+   (02:36:20) function textprocess redefined
+   (02:36:20) function text_auto_Callback redefined
+   (02:36:20) function text_auto_from redefined
+   (02:36:20) t
+\i (02:36:20) skill MyStart 
+   (02:36:20) t
+\i (02:36:22) setwindow form.measure
+\i (02:36:22) FORM measure aquit  
+   (02:36:22) 1
+   (02:36:22) Simulator expired with exit status = ipc:0  -111
+\i (02:37:04) setwindow pcb
+\i (02:37:04) skill loadiii 
+\i (02:37:04) generaledit 
+   (02:37:04) function loadiii redefined
+   (02:37:04) function MyStart redefined
+   (02:37:04) function Get_Total_Dist redefined
+   (02:37:04) function Get_Air_Out redefined
+   (02:37:04) function chs_Callback redefined
+   (02:37:04) function dataH redefined
+   (02:37:04) function simErr redefined
+   (02:37:04) function simTerm redefined
+   (02:37:04) function textprocess redefined
+   (02:37:04) function text_auto_Callback redefined
+   (02:37:04) function text_auto_from redefined
+   (02:37:04) t
+\i (02:37:04) skill MyStart 
+   (02:37:04) t
+\i (02:37:06) setwindow form.measure
+\i (02:37:06) FORM measure aquit  
+   (02:37:07) 1
+   (02:37:08) cid: ipc:0  Msg: Executing (let () (println "Hello world ") (1 + 1))
+   (02:37:08) cid: ipc:0  Msg: Result = (let () (println "Hello world ") (1 + 1))
+   (02:37:08) Simulator expired with exit status = ipc:0  0
+\i (03:07:10) setwindow pcb
+\i (03:07:10) skill loadiii 
+\i (03:07:10) generaledit 
+   (03:07:10) function loadiii redefined
+   (03:07:10) function MyStart redefined
+   (03:07:10) function Get_Total_Dist redefined
+   (03:07:10) function Get_Air_Out redefined
+   (03:07:10) function chs_Callback redefined
+   (03:07:10) function dataH redefined
+   (03:07:10) function simErr redefined
+   (03:07:10) function simTerm redefined
+   (03:07:10) function textprocess redefined
+   (03:07:10) function text_auto_Callback redefined
+   (03:07:11) function text_auto_from redefined
+   (03:07:11) t
+\i (03:07:11) skill MyStart 
+   (03:07:11) t
+\i (03:08:24) skill loadiii 
+\i (03:08:24) generaledit 
+   (03:08:24) function loadiii redefined
+   (03:08:24) function MyStart redefined
+   (03:08:24) function Get_Total_Dist redefined
+   (03:08:24) function Get_Air_Out redefined
+   (03:08:24) function chs_Callback redefined
+   (03:08:24) function dataH redefined
+   (03:08:24) function simErr redefined
+   (03:08:24) function simTerm redefined
+   (03:08:24) function textprocess redefined
+   (03:08:24) function text_auto_Callback redefined
+   (03:08:24) function text_auto_from redefined
+   (03:08:24) t
+\i (03:08:24) skill MyStart 
+   (03:08:24) t
+\i (03:08:25) setwindow form.measure
+\i (03:08:25) FORM measure aquit  
+   (03:08:26) 1
+   (03:08:29) cid: ipc:0  Msg: Executing (let () (println "Hello world ") (1 + 1))Result = 
+   (03:08:29) Simulator expired with exit status = ipc:0  0
+\i (03:09:05) setwindow pcb
+\i (03:09:05) skill loadiii 
+\i (03:09:05) generaledit 
+   (03:09:05) function loadiii redefined
+   (03:09:05) function MyStart redefined
+   (03:09:05) function Get_Total_Dist redefined
+   (03:09:05) function Get_Air_Out redefined
+   (03:09:05) function chs_Callback redefined
+   (03:09:05) function dataH redefined
+   (03:09:05) function simErr redefined
+   (03:09:05) function simTerm redefined
+   (03:09:05) function textprocess redefined
+   (03:09:05) function text_auto_Callback redefined
+   (03:09:05) function text_auto_from redefined
+   (03:09:05) t
+\i (03:09:06) skill MyStart 
+   (03:09:06) t
+\i (03:09:07) setwindow form.measure
+\i (03:09:07) FORM measure aquit  
+   (03:09:08) 1
+   (03:09:09) cid: ipc:0  Msg: Executing (let () (println "Hello world ") (1 + 1))
+   (03:09:09) cid: ipc:0  Msg: Result = 
+   (03:09:09) Simulator expired with exit status = ipc:0  0
+\i (03:20:27) setwindow pcb
+\i (03:20:27) skill loadiii 
+\i (03:20:27) generaledit 
+   (03:20:27) function loadiii redefined
+   (03:20:27) function MyStart redefined
+   (03:20:27) function Get_Total_Dist redefined
+   (03:20:27) function Get_Air_Out redefined
+   (03:20:27) function chs_Callback redefined
+   (03:20:27) function dataH redefined
+   (03:20:27) function simErr redefined
+   (03:20:27) function simTerm redefined
+   (03:20:27) function textprocess redefined
+   (03:20:27) function text_auto_Callback redefined
+   (03:20:27) function text_auto_from redefined
+   (03:20:27) t
+\i (03:20:28) skill MyStart 
+   (03:20:28) t
+\i (03:20:29) setwindow form.measure
+\i (03:20:29) FORM measure aquit  
+   (03:20:30) 1
+   (03:20:32) cid: ipc:0  Msg: Executing (let () (println "Hello world ") (1 + 1))
+   (03:20:32) cid: ipc:0  Msg: Result = 
+   (03:20:32) Simulator expired with exit status = ipc:0  0
+\e (03:20:51) Command not found: Executing
+\i (03:20:55) setwindow pcb
+\i (03:20:55) skill 
+\i (03:21:04) skill Executing 
+   (03:21:04) *Error* toplevel: undefined variable - Executing
+   (03:21:04) nil
+\i (03:36:01) skill loadiii 
+\i (03:36:01) generaledit 
+   (03:36:01) function loadiii redefined
+   (03:36:01) function MyStart redefined
+   (03:36:01) function Get_Total_Dist redefined
+   (03:36:01) function Get_Air_Out redefined
+   (03:36:01) function chs_Callback redefined
+   (03:36:01) function dataH redefined
+   (03:36:01) function simErr redefined
+   (03:36:01) function simTerm redefined
+   (03:36:01) function textprocess redefined
+   (03:36:01) function text_auto_Callback redefined
+   (03:36:01) function text_auto_from redefined
+   (03:36:01) t
+\i (03:36:02) skill MyStart 
+   (03:36:02) t
+\i (03:36:03) setwindow form.measure
+\i (03:36:03) FORM measure aquit  
+   (03:36:04) 1
+   (03:36:05) cid: ipc:0  Msg: (let () (println "Hello world ") (1 + 1))
+   (03:36:05) cid: ipc:0  Msg: Result = 
+   (03:36:05) Simulator expired with exit status = ipc:0  0
+\i (03:36:14) setwindow pcb
+\i (03:36:14) exit 

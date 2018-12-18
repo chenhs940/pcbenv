@@ -1,0 +1,191 @@
+procedure(CreateComplex( @key (xzhou 0)(yzhou 0))
+	let((result)
+		result = ncons(nil)
+		result->x  = xzhou;
+		result->y  = yzhou;
+		result;
+
+	);
+);
+
+procedure(loadiii()
+	loadi(strcat(axlOSSlash(getShellEnvVar("HOME")) "/pcbenv/test.il") "chenhs");
+	loadi(strcat(axlOSSlash(getShellEnvVar("HOME")) "/pcbenv/auto_text_20161025.il") "chenhs");
+loadi(strcat(axlOSSlash(getShellEnvVar("HOME")) "/pcbenv/1.test=test=test.il") "chenhs");
+);
+;axlColorSet('background '(255 255 255))
+procedure(LD_SkillStart()
+
+;axlUIConfirm("Hello World!")
+
+;setq(v '(1 2))
+;printf("V:%L" v)
+;boundp('item)&&item ÊÇ·ñÓÐ¸³Öµ
+
+C1 = CreateComplex( ?xzhou 10 ?yzhou 0 )
+printf("%s\n" buildString('("NewFile" "txt") "."))
+printf("%s\n" strcat("NewFile" "txt"))
+printf("%s\n" strncat("NewFile" "txt" 2))
+printf("%s\n" substring("abcdefg" 3,4))
+strlen("sd")
+index("123wert" "3")
+getchar("qwer" 4)
+parseString("What Emm  ? Fine ?" "?")
+upperCase("quanbuzhuanweidaxie");
+lowerCase("QUANBUZHUANXIAOXIE");
+people = defstruct(name id score)
+people->name = "chenhs"
+people->id = "132"
+people->score = 99;
+printf("name is %s id is %s score is %d" people->name people->id people->score )
+declare(week[7])
+a = "sd";
+type(a)
+table1 = makeTable("table1" 0)
+tablep(table1)
+table1[1] = 10;
+table1[2] = "ds";
+table1[3] = '(1 2 3)
+table1["s"] = 7;
+length(table1);
+printf(":%d" table1["s"] )
+tableToList(table1)
+writeTable("temp.txt" table1)
+tableToList(table1)
+;printstruct(table1)
+g = 10;arrayp(g)bcdp(g)dtpr(g)fixp(g)floatp(g)listp(g)null(g)
+;numberp;otherp;portpstringp;symbolp;symstrp;type;
+Myname = "pppoe"
+s = trTTT(Myname);
+printf("\ngaihou:%d" s)
+s=axlVersion('fullVersion)
+printf("banben:%s\n" s)
+;etch = axlGetParam("paramLayerGroup:ETCH")
+;printf("etch:%d\n" etch)
+;etch=123456789
+;axlSetParam('etch)
+;printf("\n\n\n")
+;etch = axlGetParam("paramLayerGroup:PIN")
+;println(etch->??)
+;println(etch->visible)
+;etch->visible=nil;
+;axlSetParam(etch)
+;form = axlFormCreate(gensym(),"text_auto.form",`("E" "OUTER"),`text_auto_Callback,t)
+;axlFormDisplay(form) 
+;art = axlGetParam("artwork")
+;println(art->??)
+
+/*
+id = axlDBGetDesign()
+;println(id->symbols)
+foreach(s id->symbols
+	;println(s->refdes)
+	when(s->refdes=="Q1"
+		println(s->??)
+	)
+)
+t
+id = axlDBFindByName('refdes "Q1")
+println(id->symbol->??)
+
+t*/
+;id = axlSelectByName("REFDES" "Q1")
+;println(car(id)->??)
+;axlDBChangeText(car(id) "Q100")
+;axlDBGetAttachedText(car(id))
+;println(car(id)->children)
+;foreach(n0 car(id)->children
+	;car(id)->refdes="Q100"
+	;println(car(id)->refdes)
+	;axlSetParam(id)
+	;axlDBGetLayerType("ETCH/TOP")
+	axlColorGet('background);
+	axlColorSet('background '(0 0 0));
+	etch = axlGetParam("paramLayerGroup:ETCH")
+	println(etch->??)
+	printf("\n\n\n")
+	p = axlLayerGet("etch/top")
+	println(p)
+	axlSelectByName("REFDES" "Q1")   
+	printf("\n\n\n")
+	;axlColorGet('all)
+	axlGetXSection();
+	
+	axlIsLayer("ETCH/TOP");
+	axlIsVisibleLayer("ETCH/TOP"); 
+	   printf("\n\n\n")
+	axlDBGetDesign()->prop->SCHEMATIC_NAME;
+;)                  
+;t
+);procedure
+;axlCmdRegister("trTTT" 'trTTT)
+
+procedure(trTrace(fun @rest args)
+	let((result)
+		printf("\nCalling %s passing %L" fun args)
+		result = apply(fun args)
+		printf("\nReturning from %s with %L\n" fun result)
+		result 
+	);let
+);procedure
+
+procedure(trTTT(name)
+	let((a) 
+			a = 123
+			;Fun_test("wanghh")
+			a
+	);
+);procedure
+ 
+
+procedure(WriteFile()
+trTrace('plus 1 2 3)
+;out = outfile("F:/SPB_Data/pcbenv/temp.txt")
+;println( list(1 2) out)
+;close( out )
+);procedure
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

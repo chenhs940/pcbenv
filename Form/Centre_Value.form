@@ -1,0 +1,64 @@
+FILE_TYPE=FORM_DEFN VERSION=2
+FORM
+FIXED
+PORT 28 13
+HEADER "位号居中工具 —— V0.01"
+POPUP <CURSPOP>"Any""1","IC""2","IO""3","DISCRETE""4".
+POPUP <PRINTP>"to File""0","to Printer""1","to Script""2".
+
+TILE
+
+FIELD Ref_Top
+FLOC 12 4
+FGROUP "选择层"
+CHECKLIST "" "grid"
+ENDFIELD
+
+FIELD Ref_Bottom
+FLOC 12 6
+FGROUP "选择层"
+CHECKLIST "" "grid"
+ENDFIELD
+
+FIELD Value_Top
+FLOC 20 4
+FGROUP "选择层"
+CHECKLIST "" "grid"
+ENDFIELD
+
+
+FIELD Value_Bottom
+FLOC 20 6
+FGROUP "选择层"
+CHECKLIST "" "grid"
+ENDFIELD
+
+
+
+TEXT "Top" "Text0"
+FLOC 3 4
+ENDFIELD
+
+TEXT "Bottom" "Text1"
+FLOC 3 6
+ENDFIELD
+
+TEXT "Ref" "Text2"
+FLOC 11 2
+ENDFIELD
+
+TEXT "Value" "Text3"
+FLOC 18 2
+ENDFIELD
+
+
+
+GROUP "选择层"
+GLOC 1 0
+GSIZE 27 11
+ENDGROUP
+
+
+ENDTILE
+
+ENDFORM

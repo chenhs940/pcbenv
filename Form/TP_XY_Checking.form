@@ -1,0 +1,66 @@
+FILE_TYPE=FORM_DEFN	VERSION=2
+FORM
+FIXED
+PORT 86	58
+HEADER "Test Point Checkings - V0.01"
+
+TILE
+
+TABSET "Tab1"
+OPTIONS	tabsetDispatch
+FLOC 1 1
+FSIZE	32 40
+
+TAB	"测试点位置对比" "TabSheet1"
+
+GROUP	"问题列表" "Group5"
+GLOC 1 6
+FSIZE	30 26
+ENDGROUP
+
+
+TEXT "Placement File:"
+FLOC 2 1
+ENDTEXT 
+
+
+FIELD Input1
+FLOC 2 3
+FSIZE 19 2
+STRFILLIN 22 150
+VALUE "*.brd"
+ENDFIELD
+
+FIELD	FileButton
+FLOC 26	3
+MENUBUTTON "..."	4 3
+FGROUP "Group5"
+ENDFIELD
+
+FIELD	ErrorList
+FLOC 2 8
+LIST ""	28 12
+OPTIONS	multiselect
+FGROUP "Group5"
+ENDFIELD
+
+FIELD	CheckButton
+FLOC 18	33
+MENUBUTTON "检查"	12 4
+FGROUP "Group5"
+ENDFIELD
+
+ENDTAB
+
+TAB	"..."	"TabSheet2"
+
+TEXT "期待更新..." "Label3"
+FLOC 9 9
+FGROUP "TabSheet2"
+ENDFIELD 
+
+ENDTAB
+ENDTABSET
+
+ENDTILE
+ENDFORM
